@@ -2,26 +2,30 @@
 
 int main(int argc, char ** argv)
 {
-	int channel_fd;
+	int sc_fifo_fd, cs_fifo_fd;
 
-	/* Three arguments are mandatory */
-	if( !argv[1] || !argv[2] || !argv[3] ) {
-		fprintf(stderr,"client [fifo channel] [password file] [username]\n");
+	/* Mandatory arguments */
+	if( !argv[1] || !argv[2] || !argv[3] || !argv[4] ) {
+		fprintf(stderr,"client [server->client fifo] [client->server fifo] [password file] [username]\n");
 		exit(1);
 	}
 
 	/* Create connection with the server */
 	fprintf(stderr,"Create connection...\n");
-	channel_fd = open_channel(argv[1]);
-	write_msg(channel_fd,(const u_int8_t *)CONNECTION_STRING,strlen(CONNECTION_STRING));
+	sc_fifo_fd = open_channel(argv[1]);
+	cs_fifo_fd = open_channel(argv[2]);
+
+	write_msg(cs_fifo_fd,(const u_int8_t *)CONNECTION_STRING,strlen(CONNECTION_STRING));
 
 	/* Read OK */
-	if( read_string(channel_fd,OK_STRING) < 0 ) {
+	if( read_string(sc_fifo_fd,OK_STRING) < 0 ) {
 		fprintf(stderr,"Communication error\n");
 		goto next;
 	}
 
-	/* Server authentication */
+  /* Server authentication */
+  /* ... */ 
+
   // GET public rsa key of S, (s_puk,n), from "client_folder/server_rsa_public_key.txt"
   /* ... */
   // CREATE a random number r
@@ -69,11 +73,12 @@ next:
 	fprintf(stderr,"Closing connection...\n");
 
 	/* Expect BYE */
-	if( read_string(channel_fd,CLOSE_CONNECTION_STRING) < 0 ) {
+	if( read_string(sc_fifo_fd,CLOSE_CONNECTION_STRING) < 0 ) {
 		fprintf(stderr,"Communication error\n");
 		goto next;
 	}
 
-	close_channel(channel_fd);
+	close_channel(cs_fifo_fd);
+	close_channel(sc_fifo_fd);
 	exit(0);
 }
