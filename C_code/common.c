@@ -5,30 +5,30 @@ void print_buff(u_int8_t * buff, size_t buff_size)
 	int i = 0, j;
 
 	while( i < buff_size ) {
-		j = i;
-		while( (j < buff_size) && ((j + 1) % 16) ) {
+		j = 0;
+		while( ((j + i) < buff_size) && (j < 16) ) {
 			fprintf(stderr,"%02X ",buff[j]);
 			j++;
 		}
 
-		while( (j + 1) % 16 ) {
+		while( j < 16 ) {
 			fprintf(stderr,"-- ");
 			j++;
 		}
 		fprintf(stderr," *** ");
 
-		j = i;
-		while( (j < buff_size) && ((j + 1) % 16) ) {
+		j = 0;
+		while( ((j + i) < buff_size) && (j < 16) ) {
 			fprintf(stderr,"%c",isprint(buff[j]) ? buff[j] : '.');
 			j++;
 		}
 
-		while( (j + 1) % 16 ) {
+		while( j < 16 ) {
 			fputc('.',stderr);
 			j++;
 		}
 
-    i = i + j;
+    		i += j;
 		fputc('\n',stderr);
 	}
 }
