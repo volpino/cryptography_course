@@ -31,31 +31,37 @@ int wait_connection(int channel_fd)
 
 int main(int argc, char ** argv)
 {
-	int channel_fd;
-  
-	/* Two arguments are mandatory */
-	if( !argv[1] || !argv[2] ) {
-		fprintf(stderr,"server [fifo channel] [password file]\n");
+	int sc_fifo_fd, cs_fifo_fd;
+	u_int8_t * buff;
+ 
+	/* Mandatory arguments */
+	if( !argv[1] || !argv[2] || !argv[3] ) {
+		fprintf(stderr,"server [server->client fifo] [client->server fifo] [password file]\n");
 		exit(1);
 	}
 
 	/* Main loop */
 	do {
-		/* Open the channel */
-		fprintf(stderr,"Opening connection...\n");
-		channel_fd = open_fifo(argv[1]);
+		/* Open the server->client fifo */
+		fprintf(stderr,"Opening server->client fifo...\n");
+		sc_fifo_fd = open_fifo(argv[1]);
+
+		/* Open the client->server fifo */
+		fprintf(stderr,"Opening client->server fifo...\n");
+		cs_fifo_fd = open_fifo(argv[2]);
 
 		/* Wait for a connection */
 		fprintf(stderr,"Waiting connection...\n");
-		if( wait_connection(channel_fd) < 0 ) {
+		if( wait_connection(cs_fifo_fd) < 0 ) {
 			fprintf(stderr,"Communication error...\n");
 			goto next;
 		}
 		
 		/* Write OK */
-		write_OK(channel_fd);
+		write_OK(sc_fifo_fd);
      
-  	/* Server authentication */
+    /* Server authentication */
+	
     // GET private rsa key of S, (s_prk,n) from "server_folder/server_rsa_private_key.txt"
     /* ... */
     // READ c from S
@@ -65,7 +71,7 @@ int main(int argc, char ** argv)
     // SEND r' to C
     /* ... */
 
-	  /* Client authentication */
+    /* Client authentication */
     // READ client name nm of C
     /* ... */
     // GET the public rsa keys of the possible clients associated to each name, (names[],c_puk[],n[]) from "client_folder/clients_rsa_public_keys.txt"
@@ -81,8 +87,8 @@ int main(int argc, char ** argv)
 		
     /* Negotiation of the cipher suite */
     /* ... */    
-
-	  /* Negotiation of the private key */
+    
+    /* Negotiation of the private key */
     /* ... */    
 
     /* Encrypt communication */
@@ -91,16 +97,16 @@ int main(int argc, char ** argv)
     /* Disconnection */
     /* ... */        
     
-    
-    
 next:
 		/* Close current connection */
 		fprintf(stderr,"Closing connection...\n");
-		write_BYE(channel_fd);
-		close_channel(channel_fd);
+		write_BYE(sc_fifo_fd);
+		close_channel(sc_fifo_fd);
+		close_channel(cs_fifo_fd);
 	} while(1);
 
-	close_channel(channel_fd);
+	close_channel(sc_fifo_fd);
+	close_channel(cs_fifo_fd);
 
 	exit(0);
 }
