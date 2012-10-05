@@ -11,8 +11,11 @@
 *.la
 *.a
 
-# Editor backup files
+
+# Emacs tmp files
 *~
 *#
-.#*
+\#*\#
+
+# Vi tmp files
 *.swp
