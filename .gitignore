@@ -10,3 +10,9 @@
 *.lai
 *.la
 *.a
+
+# Editor backup files
+*~
+*#
+.#*
+*.swp
