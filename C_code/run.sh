@@ -1,15 +1,18 @@
 #!/bin/sh
 
-make -k &&
+make clean
+make || exit 0
 
 # Start server
-./server serv-cli.fifo cli-serv.fifo whatever&
+./server serv-cli.fifo cli-serv.fifo whatever 2> /tmp/server_output &
 
 # Let server start before starting client
 sleep .5
 
 # Start client
+echo "================ CLIENT ================"
 ./client serv-cli.fifo cli-serv.fifo whatever username
+echo
 
 # Start client with different params if needed
 # ...
@@ -17,8 +20,13 @@ sleep .5
 # Kill server
 kill %1
 
+# print server output
+echo "================ SERVER ================"
+cat /tmp/server_output
+
 # clean up
-unlink serv-cli.fifo 2>/dev/null 1>/dev/null
-unlink cli-serv.fifo 2>/dev/null 1>/dev/null
+rm -f serv-cli.fifo
+rm -f cli-serv.fifo
+rm /tmp/server_output
 
 exit 0

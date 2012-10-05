@@ -28,7 +28,7 @@ void print_buff(u_int8_t * buff, size_t buff_size)
 			j++;
 		}
 
-    		i += j;
+		i += j;
 		fputc('\n',stderr);
 	}
 }
