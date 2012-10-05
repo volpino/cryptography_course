@@ -15,3 +15,7 @@
 # Emacs tmp files
 \#*\#
 *~
+
+# Client and Server are executables
+client
+server
