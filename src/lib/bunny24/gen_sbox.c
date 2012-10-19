@@ -1,4 +1,5 @@
 #include "../field.h"
+#include "bunny_internals.h"
 #include <stdio.h>
 
 #define E 0x2;  /* (0,0,0,0,1,0) */
@@ -11,7 +12,7 @@ void SB1() {
     for (i=0; i<0x40; i++) {
         result = i;
         for (j=0; j<62; j++) {
-            result = gf_mul(result, i);
+            result = bunny_mul(result, i);
         }
         printf("%d, ", result);
     }
@@ -27,9 +28,9 @@ void SB2() {
     for (i=0; i<0x40; i++) {
         result = i;
         for (j=0; j<62; j++) {
-            result = gf_mul(result, i);
+            result = bunny_mul(result, i);
         }
-        printf("%d, ", gf_add(result, gf_mul(E, E)));
+        printf("%d, ", bunny_add(result, bunny_mul(E, E)));
     }
     printf("}\n");
 }
@@ -43,7 +44,7 @@ void SB3() {
     for (i=0; i<0x40; i++) {
         result = i;
         for (j=0; j<5; j++) {
-            result = gf_mul(result, i);
+            result = bunny_mul(result, i);
         }
         printf("%d, ", result);
     }
@@ -59,7 +60,7 @@ void SB4() {
     for (i=0; i<0x40; i++) {
         result = i;
         for (j=0; j<17; j++) {
-            result = gf_mul(result, i);
+            result = bunny_mul(result, i);
         }
         printf("%d, ", result);
     }

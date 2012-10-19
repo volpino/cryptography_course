@@ -1,4 +1,4 @@
-#include "field.h"
+#include "../field.h"
 #include <stdio.h>  /* only for debugging */
 
 
