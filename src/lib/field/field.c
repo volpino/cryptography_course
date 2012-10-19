@@ -1,15 +1,6 @@
 #include "../field.h"
-#include <stdio.h>  /* only for debugging */
+#include <stdio.h>
 
-
-#define G6_BYTETOBINARYPATTERN "(%d,%d,%d,%d,%d,%d)"
-#define G6_BYTETOBINARY(byte)  \
-  (byte & 0x20 ? 1 : 0), \
-  (byte & 0x10 ? 1 : 0), \
-  (byte & 0x08 ? 1 : 0), \
-  (byte & 0x04 ? 1 : 0), \
-  (byte & 0x02 ? 1 : 0), \
-  (byte & 0x01 ? 1 : 0)
 
 /* given the number of bits, return the proper mask */
 uint8_t size2mask(uint8_t n_bits){
@@ -45,7 +36,7 @@ uint8_t gf_mul(uint8_t a, uint8_t b, uint8_t n_bits, uint8_t poly) {
         a <<= 1;
         a &= mask;
         if (hi_bit_set)
-            a ^= poly; //0x1b; /* x^4 + x^3 + x + 1 */
+            a ^= poly;
         b >>= 1;
     }
     return p;
@@ -65,6 +56,15 @@ uint8_t gf_rotate(uint8_t a, int8_t d, uint8_t n_bits) {
     return a ^ (tmp & size2mask(n_bits));
 }
 
+#define G6_BYTETOBINARYPATTERN "(%d,%d,%d,%d,%d,%d)"
+#define G6_BYTETOBINARY(byte)  \
+  (byte & 0x20 ? 1 : 0), \
+  (byte & 0x10 ? 1 : 0), \
+  (byte & 0x08 ? 1 : 0), \
+  (byte & 0x04 ? 1 : 0), \
+  (byte & 0x02 ? 1 : 0), \
+  (byte & 0x01 ? 1 : 0)
+
 uint8_t g6_input() {
     uint8_t a0, a1, a2, a3, a4, a5;
     scanf("(%c,%c,%c,%c,%c,%c)", &a0, &a1, &a2, &a3, &a4, &a5);
@@ -76,20 +76,5 @@ void g6_print(uint8_t a) {
     printf(G6_BYTETOBINARYPATTERN, G6_BYTETOBINARY(a));
 }
 
-void field_test() {
-    uint8_t a, b;
-
-    printf("Gimme the A vector: ");
-    a = g6_input();
-    scanf("\n");
-    printf("Gimme the B vector: ");
-    scanf("\n");
-    b = g6_input();
-
-    printf("\nA + B: ");
-    g6_print(gf_add(a, b));
-    printf("\nA * B: ");
-    g6_print(gf_mul(a, b, 6, 0x1b));
-    printf("\n");
-}
-
+#undef G6_BYTETOBINARYPATTERN
+#undef G6_BYTETOBINARY
