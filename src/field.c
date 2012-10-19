@@ -1,6 +1,16 @@
 #include "field.h"
 #include <stdio.h>  /* only for debugging */
 
+
+#define G6_BYTETOBINARYPATTERN "(%d,%d,%d,%d,%d,%d)"
+#define G6_BYTETOBINARY(byte)  \
+  (byte & 0x20 ? 1 : 0), \
+  (byte & 0x10 ? 1 : 0), \
+  (byte & 0x08 ? 1 : 0), \
+  (byte & 0x04 ? 1 : 0), \
+  (byte & 0x02 ? 1 : 0), \
+  (byte & 0x01 ? 1 : 0)
+
 /* given the number of bits, return the proper mask */
 uint8_t size2mask(uint8_t n_bits){
   uint8_t res = 0;
@@ -33,7 +43,7 @@ uint8_t gf_mul(uint8_t a, uint8_t b, uint8_t n_bits, uint8_t poly) {
             p ^= a;
         hi_bit_set = (a & msb_mask);
         a <<= 1;
-        a &= maks;
+        a &= mask;
         if (hi_bit_set)
             a ^= poly; //0x1b; /* x^4 + x^3 + x + 1 */
         b >>= 1;
@@ -44,7 +54,6 @@ uint8_t gf_mul(uint8_t a, uint8_t b, uint8_t n_bits, uint8_t poly) {
 /* rotate to the right */
 uint8_t gf_rotate(uint8_t a, int8_t d, uint8_t n_bits) {
     uint8_t tmp;
-    uint8_t i;
     a &= (size2mask(n_bits));
     tmp = a;
     d %= n_bits;
@@ -56,13 +65,31 @@ uint8_t gf_rotate(uint8_t a, int8_t d, uint8_t n_bits) {
     return a ^ (tmp & size2mask(n_bits));
 }
 
-int main() {
-    printf("3 + 11 = %d\n", g6_add(3, 11));
-    printf("27 + 12 = %d\n", g6_add(27, 12));
-    printf("27 * 11 = %d\n", g6_mul(27, 11));
-    printf("6 * 5 = %d\n", g6_mul(6, 5));
-    printf("R(0x11, 4) = %d\n", g6_rotate(0x11, 4));
-    printf("R(0x11, 2) = %d\n", g6_rotate(0x11, 2));
-    printf("R(0x11, -4) = %d\n", g6_rotate(0x11, -4));
-    printf("R(0x11, -2) = %d\n", g6_rotate(0x11, -2));
+uint8_t g6_input() {
+    uint8_t a0, a1, a2, a3, a4, a5;
+    scanf("(%c,%c,%c,%c,%c,%c)", &a0, &a1, &a2, &a3, &a4, &a5);
+    return (a0 - '0')*0x20 + (a1 - '0')*0x10 + (a2 - '0')*0x08 + \
+           (a3 - '0')*0x04 + (a4 - '0')*0x02 + (a5 - '0')*0x01;
 }
+
+void g6_print(uint8_t a) {
+    printf(G6_BYTETOBINARYPATTERN, G6_BYTETOBINARY(a));
+}
+
+void field_test() {
+    uint8_t a, b;
+
+    printf("Gimme the A vector: ");
+    a = g6_input();
+    scanf("\n");
+    printf("Gimme the B vector: ");
+    scanf("\n");
+    b = g6_input();
+
+    printf("\nA + B: ");
+    g6_print(gf_add(a, b));
+    printf("\nA * B: ");
+    g6_print(gf_mul(a, b, 6, 0x1b));
+    printf("\n");
+}
+
