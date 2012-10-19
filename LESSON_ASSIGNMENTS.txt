@@ -1,0 +1,42 @@
+LESSON_01 - 2012-09-28
+- read and study the specifications of the project
+- become confidential with the C code for the communication 
+  + read and understand the files:
+    server.c
+	client.c
+	common.h
+	common.c
+  + use of the functions "write_msg()" and "read_msg()"
+- create "client_folder" and "server_folder" with some ".txt" file in it
+- write the C code (using also write_msg() and read_msg() function) to:
+  + get data from the .txt files in the two folders
+  + write data on the channel
+  + read data from the channel
+- correct bugs of the given C code!
+
+LESSON_02 - 2012-10-05
+/* ... */
+
+LESSON_03 - 2012-10-12
+/* ... */
+
+LESSON_04 - 2012-10-19
+/* ... */
+
+LESSON_05 - 2012-10-26
+/* ... */
+
+LESSON_06
+/* ... */
+
+LESSON_07
+/* ... */
+
+LESSON_08
+/* ... */
+
+LESSON_09
+/* ... */
+
+LESSON_10
+/* ... */
