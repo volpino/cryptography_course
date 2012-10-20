@@ -11,7 +11,7 @@ uint8_t array_scal(array a, array b) {
   int i;
   uint8_t res = 0x0;
   for (i=0; i<ARRAY_LEN; i++) {
-    res = bunny_sum(res, bunny_mul(a[i], b[i]));
+    res = bunny_add(res, bunny_mul(a[i], b[i]));
   }
   return res;
 }
