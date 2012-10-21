@@ -1,5 +1,5 @@
 #include "bunny_internals.h"
-
+#include <stdio.h>
 /*
 void key_schedule(array key, uint8_t* result) {
     uint8_t w[20];
@@ -38,13 +38,13 @@ void key_schedule(array key, array* result) {
   uint8_t tb[3][5][4];
   int t, i, j, k;
 
-  /* Generate sequence of 60 b-bit words */
+  /* Generate sequence of 60 6-bit words */
   w[0] = key[0];
   w[1] = key[1];
   w[2] = key[2];
   w[3] = key[3];
 
-  /*Wi = SB(Wi-4) + Wi-3 */
+  /* Wi = SB(Wi-4) + Wi-3 */
   w[4] = bunny_add(SB1[w[0]], w[1]);
   w[5] = bunny_add(SB1[w[1]], w[2]);
   w[6] = bunny_add(SB1[w[2]], w[3]);
@@ -61,6 +61,15 @@ void key_schedule(array key, array* result) {
     else if ((i % 8) == 5) {
       bunny_add(w[k-8], SB3[w[k-1]]);
     }
+  }
+
+
+  g6_print(w[3]);
+  g6_print(SB1[w[3]]);
+    printf("\n");
+  for (k=0; k<8; k++) {
+    g6_print(w[k]);
+    printf("\n");
   }
 
   /* Rearrange words in the proper tables */
