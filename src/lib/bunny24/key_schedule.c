@@ -29,16 +29,14 @@ void key_schedule(array key, uint8_t* result) {
 }
 */
 
-/* result must be capable of handling 15 keys.
-   NB: the key to be used before first round is NOT
-   included, as the input key has to be used directly.
+/* result must be capable of holding 16 keys.
 */
 void key_schedule(array key, array* result) {
-  uint8_t w[60];
-  uint8_t tb[3][5][4];
+  uint8_t w[88];
+  uint8_t tb[4][5][4];
   int t, i, j, k;
 
-  /* Generate sequence of 60 6-bit words */
+  /* Generate sequence of 88 6-bit words */
   w[0] = key[0];
   w[1] = key[1];
   w[2] = key[2];
@@ -46,11 +44,11 @@ void key_schedule(array key, array* result) {
 
   /* Wi = SB(Wi-4) + Wi-3 */
   w[4] = bunny_add(SB1[w[0]], w[1]);
-  w[5] = bunny_add(SB1[w[1]], w[2]);
-  w[6] = bunny_add(SB1[w[2]], w[3]);
-  w[7] = bunny_add(SB1[w[3]], w[0]);
+  w[5] = bunny_add(SB2[w[1]], w[2]);
+  w[6] = bunny_add(SB3[w[2]], w[3]);
+  w[7] = bunny_add(SB4[w[3]], w[0]);
 
-  for (k=8; k<60; k++) {
+  for (k=8; k<88; k++) {
     i = k+1;
     if ((i % 4) != 1) {
       w[k] = bunny_add(w[k-8], w[k-1]);
@@ -61,20 +59,21 @@ void key_schedule(array key, array* result) {
     else if ((i % 8) == 5) {
       bunny_add(w[k-8], SB3[w[k-1]]);
     }
+    else
+      printf("ERRORRORRRRR!\n");
   }
 
 
-  g6_print(w[3]);
-  g6_print(SB1[w[3]]);
-    printf("\n");
-  for (k=0; k<8; k++) {
+  for (k=0; k<88; k++) {
+    printf("W_%i: ", k+1);
     g6_print(w[k]);
     printf("\n");
   }
 
+
   /* Rearrange words in the proper tables */
-  k = 0;
-  for (t=0; t<3; t++) {
+  k = 8;
+  for (t=0; t<4; t++) {
     for (i=0; i<5; i++) {
       for (j=0; j<4; j++){
         tb[t][i][j] = w[k];
@@ -83,10 +82,21 @@ void key_schedule(array key, array* result) {
     }
   }
 
+  for (t=0; t<4; t++) {
+    for (i=0; i<5; i++) {
+      for (j=0; j<4; j++){
+        g6_print(tb[t][i][j]);
+      }
+      printf("\n");
+    }
+    printf("\n");
+  }
+  printf("\n\n\n");
+
   /* Read tables in diagonal, in order to get the keys */
   k = 0;
-  for (t=0; t<3; t++) {
-    for (i=0; i<5; i++) {
+  for (t=0; t<3 && k<16; t++) {
+    for (i=0; i<5 && k<16; i++) {
       for (j=0; j<4; j++){
         result[k][j] = tb[t][(i+j)%5][j];
       }

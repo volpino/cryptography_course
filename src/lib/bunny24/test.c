@@ -5,7 +5,7 @@
 
 void test_key_schedule () {
   array key;
-  array rkeys[15];
+  array rkeys[16];
   int i;
   int index; /* reqiored for array_print()...
                 perhaps it should be NOT a macro */
@@ -15,7 +15,7 @@ void test_key_schedule () {
 
   key_schedule(key, rkeys);
 
-  for (i=0; i<15; i++) {
+  for (i=0; i<16; i++) {
     array_print(rkeys[i]);
   }
 }
