@@ -20,13 +20,18 @@ typedef uint8_t array[ARRAY_LEN];
 
 void key_schedule(array key, array* result);
 void mixing_layer(array c);
+void mixing_layer_inv(array c);
 
 void encrypt_internal(array m, array k);
+void decrypt_internal(array m, array k);
 
 /* Mixing layer matrix */
 extern const uint8_t lambda[ARRAY_LEN][ARRAY_LEN];
 /* Transposal of mix layer matrix (useful for matrix multiplication) */
 extern const uint8_t lambdaT[ARRAY_LEN][ARRAY_LEN];
+
+extern const uint8_t lambdaT_i[ARRAY_LEN][ARRAY_LEN];
+
 /* S-Boxes */
 extern const uint8_t SB1[];
 extern const uint8_t SB2[];

@@ -37,3 +37,19 @@ void encrypt_internal(array m, array k) {
     array_inc(m, rkeys[round]);
   }
 }
+
+void decrypt_internal(array m, array k) {
+  array rkeys[16];
+  int round;
+
+  key_schedule(k, rkeys);
+
+
+  for (round=ROUND_NUM; round>0; round--) {
+    array_inc(m, rkeys[round]);
+    mixing_layer_inv(m);
+    sboxes_dec(m);
+  }
+
+  array_inc(m, rkeys[0]);
+}

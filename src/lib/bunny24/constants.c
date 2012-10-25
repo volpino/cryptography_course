@@ -16,6 +16,22 @@ const uint8_t lambdaT[ARRAY_LEN][ARRAY_LEN] = {
     {0x3d, 0x18, 0x37, 0x13}
 };
 
+/* Mix layer inverse matrix (useful for matrix multiplication) */
+const uint8_t lambda_i[ARRAY_LEN][ARRAY_LEN] = {
+  {0x1d, 0x3, 0xb, 0x19},
+  {0x11, 0x2f, 0x3e, 0x3d},
+  {0x7, 0x17, 0x39, 0xc},
+  {0xa, 0x3a, 0xd, 0x29}
+};
+
+/* Transposal of mix layer inverse matrix (useful for matrix multiplication) */
+const uint8_t lambdaT_i[ARRAY_LEN][ARRAY_LEN] = {
+  {0x1d, 0x11, 0x7, 0xa},
+  {0x3, 0x2f, 0x17, 0x3a},
+  {0xb, 0x3e, 0x39, 0xd},
+  {0x19, 0x3d, 0xc, 0x29}
+};
+
 /* S-Boxes */
 const uint8_t SB1[] = {0, 1, 45, 54, 59, 18, 27, 30, 48, 10, 9, 49, 32, 62, 15, 14, 24, 51, 5, 58, 41, 56, 53, 35, 16, 50, 31, 6, 42, 38, 7, 26, 12, 63, 52, 23, 47, 61, 29, 43, 57, 20, 28, 39, 55, 2, 60, 36, 8, 11, 25, 17, 34, 22, 3, 44, 21, 40, 19, 4, 46, 37, 13, 33};
 const uint8_t SB2[] = {0, 1, 32, 51, 49, 3, 63, 31, 36, 4, 59, 9, 62, 45, 15, 14, 7, 5, 54, 38, 8, 57, 23, 52, 30, 61, 16, 33, 58, 42, 26, 24, 13, 43, 22, 34, 41, 60, 28, 27, 55, 48, 19, 6, 56, 12, 50, 20, 47, 10, 37, 18, 53, 35, 17, 21, 40, 44, 29, 11, 25, 46, 2, 39};

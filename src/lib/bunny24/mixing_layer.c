@@ -24,5 +24,13 @@ void mixing_layer(array a) {
   for (i=0; i<ARRAY_LEN; i++) {
     a[i] =  array_scal(in, lambdaT[i]);
   }
-  return;
+}
+
+void mixing_layer_inv(array a) {
+  int i;
+  array in;
+  array_cp(a, in);
+  for (i=0; i<ARRAY_LEN; i++) {
+    a[i] =  array_scal(in, lambdaT_i[i]);
+  }
 }

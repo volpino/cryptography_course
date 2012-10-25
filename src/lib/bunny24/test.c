@@ -27,7 +27,13 @@ void test_encrypt() {
   c[0] = 62; c[1] = 16; c[2] = 17; c[3] = 38;
   g6_print(m[0]); g6_print(c[0]); printf("\n");
   encrypt_internal(m, k);
-  g6_print(m[0]); g6_print(c[0]);
+  g6_print(m[0]); g6_print(c[0]); printf("\n");
+  decrypt_internal(m, k);
+  g6_print(m[0]); printf("\n");
+  fflush(stdout);
+
+  assert(0);
+
   assert(m[0] == c[0]);
   assert(m[1] == c[1]);
   assert(m[2] == c[2]);
@@ -210,14 +216,23 @@ void test_mixing_layer() {
   array k;
   int index;
   k[0] = 0x33; k[1] = 0x24; k[2] = 0x05; k[3] = 0x20;
+  array_print(k);
   mixing_layer(k);
   array_print(k);
+  mixing_layer_inv(k);
+  array_print(k);
+}
+
+void test_sbox() {
+  assert(SB2i[SB2[0x11]] == 0x11);
 }
 
 int main() {
   //test_key_schedule();
 
   //test_mixing_layer();
+
+  test_sbox();
 
   test_encrypt();
 
