@@ -70,64 +70,60 @@ void gen_SB4() {
 
 
 void gen_SB1i() {
-    uint8_t i, j, result;
+    uint8_t arr[64];
+    uint8_t i;
 
     printf("uint8_t SB1i[] = {");
-
     for (i=0; i<64; i++) {
-        result = 1;
-        for (j=0; j<2; j++) {
-            result = bunny_mul(result, i);
-        }
-        printf("%d%s", result, i < 63 ? ", " : "");
+        arr[SB1[i]] = i;
+    }
+    for (i=0; i<64; i++) {
+        printf("%d%s", arr[i], i < 63 ? ", " : "");
     }
     printf("};\n");
 }
 
 
 void gen_SB2i() {
-    uint8_t i, j, result;
+    uint8_t arr[64];
+    uint8_t i;
 
     printf("uint8_t SB2i[] = {");
-
     for (i=0; i<64; i++) {
-        result = 1;
-        for (j=0; j<59; j++) {
-            result = bunny_mul(result, i);
-        }
-        printf("%d%s", result, i < 63 ? ", " : "");
+        arr[SB2[i]] = i;
+    }
+    for (i=0; i<64; i++) {
+        printf("%d%s", arr[i], i < 63 ? ", " : "");
     }
     printf("};\n");
 }
 
 
 void gen_SB3i() {
-    uint8_t i, j, result;
+    uint8_t arr[64];
+    uint8_t i;
 
     printf("uint8_t SB3i[] = {");
-
     for (i=0; i<64; i++) {
-        result = 1;
-        for (j=0; j<47; j++) {
-            result = bunny_mul(result, i);
-        }
-        printf("%d%s", result, i < 63 ? ", " : "");
+        arr[SB3[i]] = i;
+    }
+    for (i=0; i<64; i++) {
+        printf("%d%s", arr[i], i < 63 ? ", " : "");
     }
     printf("};\n");
 }
 
 
 void gen_SB4i() {
-    uint8_t i, j, result;
-    uint8_t e2 = bunny_mul(E, E);
+    uint8_t arr[64];
+    uint8_t i;
 
-    printf("uint8_t SB4i[] = {0, ");
-
-    for (i=1; i<64; i++) {
-        result = i;
-        result = bunny_add(result, e2);
-        result = bunny_mul(result, result);
-        printf("%d%s", result, i < 63 ? ", " : "");
+    printf("uint8_t SB4i[] = {");
+    for (i=0; i<64; i++) {
+        arr[SB4[i]] = i;
+    }
+    for (i=0; i<64; i++) {
+        printf("%d%s", arr[i], i < 63 ? ", " : "");
     }
     printf("};\n");
 }
