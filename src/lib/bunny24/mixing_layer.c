@@ -7,7 +7,7 @@ void array_cp(array src, array dst) {
   }
 }
 
-uint8_t array_scal(array a, array b) {
+uint8_t array_scal(array a, const array b) {
   int i;
   uint8_t res = 0x0;
   for (i=0; i<ARRAY_LEN; i++) {

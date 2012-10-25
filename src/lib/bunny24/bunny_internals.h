@@ -4,6 +4,7 @@
 #include "../field.h"
 
 #define ARRAY_LEN 4
+#define ROUND_NUM 15
 
 typedef uint8_t array[ARRAY_LEN];
 
@@ -18,6 +19,9 @@ typedef uint8_t array[ARRAY_LEN];
   printf("\n");
 
 void key_schedule(array key, array* result);
+void mixing_layer(array c);
+
+void encrypt_internal(array m, array k);
 
 /* Mixing layer matrix */
 extern const uint8_t lambda[ARRAY_LEN][ARRAY_LEN];
