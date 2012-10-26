@@ -7,7 +7,7 @@
 #define COL_NUM 4
 
 /* result must be capable of holding 16 keys.*/
-void key_schedule(array key, array* result) {
+void key_schedule(const array key, array* result) {
   uint8_t w[W_LEN];
   uint8_t tb[T_NUM][ROW_NUM][COL_NUM];
   int t, i, j, k;

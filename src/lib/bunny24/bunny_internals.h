@@ -18,12 +18,12 @@ typedef uint8_t array[ARRAY_LEN];
   }                                             \
   printf("\n");
 
-void key_schedule(array key, array* result);
+void key_schedule(const array key, array* result);
 void mixing_layer(array c);
 void mixing_layer_inv(array c);
 
-void encrypt_internal(array m, array k);
-void decrypt_internal(array m, array k);
+void encrypt_internal(array m, const array k);
+void decrypt_internal(array m, const array k);
 
 /* Mixing layer matrix */
 extern const uint8_t lambda[ARRAY_LEN][ARRAY_LEN];

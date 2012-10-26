@@ -22,8 +22,7 @@ void sboxes_dec(array c){
   c[3] = SB4i[c[3]];
 }
 
-
-void encrypt_internal(array m, array k) {
+void encrypt_internal(array m, const array k) {
   array rkeys[16];
   int round;
 
@@ -38,7 +37,7 @@ void encrypt_internal(array m, array k) {
   }
 }
 
-void decrypt_internal(array m, array k) {
+void decrypt_internal(array m, const array k) {
   array rkeys[16];
   int round;
 
@@ -52,4 +51,28 @@ void decrypt_internal(array m, array k) {
   }
 
   array_inc(m, rkeys[0]);
+}
+
+void encrypt_cbc_internal(array* m, int n, const array k, const array iv) {
+    int i;
+
+    array_inc(m[0], iv);
+    encrypt_internal(m[0], k);
+
+    for (i=1; i<n; i++) {
+        array_inc(m[i], m[i-1]);
+        encrypt_internal(m[i], k);
+    }
+}
+
+void decrypt_cbc_internal(array* m, int n, const array k, const array iv) {
+    int i;
+
+    for (i=n-1; i>0; i--) {
+        decrypt_internal(m[i], k);
+        array_inc(m[i], m[i-1]);
+    }
+
+    encrypt_internal(m[0], k);
+    array_inc(m[0], iv);
 }
