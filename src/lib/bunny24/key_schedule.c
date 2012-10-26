@@ -77,12 +77,11 @@ void key_schedule(array key, array* result) {
   for (t=0; t<T_NUM && k<16; t++) {
     for (i=0; i<ROW_NUM && k<16; i++) {
       for (j=0; j<COL_NUM; j++){
-        result[k][j] = tb[t][(i+j)%ROW_NUM][j];
+        result[k][j] = tb[t][j+(j+i)/COL_NUM][(i+j)%COL_NUM];
       }
       k++;
     }
   }
-
   return;
 }
 
