@@ -1,6 +1,6 @@
 #include "bunny_internals.h"
 
-void array_cp(array src, array dst) {
+void array_cp(const array src, array dst) {
   int i;
   for(i=0; i<ARRAY_LEN; i++) {
     dst[i] = src[i];
