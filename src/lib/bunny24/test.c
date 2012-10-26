@@ -27,12 +27,8 @@ void test_encrypt() {
   t[0] = 9; t[1] = 53; t[2] = 32; t[3] = 60;
   k[0] = 61; k[1] = 13; k[2] = 19; k[3] = 16;
   c[0] = 62; c[1] = 16; c[2] = 17; c[3] = 38;
-  g6_print(m[0]); g6_print(c[0]); printf("\n");
   encrypt_internal(m, k);
-  g6_print(m[0]); g6_print(c[0]); printf("\n");
   decrypt_internal(m, k);
-  g6_print(m[0]); printf("\n");
-  fflush(stdout);
 
   assert(m[0] == t[0]);
   assert(m[1] == t[1]);
