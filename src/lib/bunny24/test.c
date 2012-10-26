@@ -20,6 +20,45 @@ void test_key_schedule() {
   }
 }
 
+void test_conversion() {
+  uint8_t t[] = {0x51, 0x4E, 0x55, 0x51, 0x4E, 0x55};
+  array a[2];
+  byte_to_g6(t, 6, a);
+  g6_to_byte(a, t, 6);
+
+  assert(t[0] == 0x51);
+  assert(t[1] == 0x4E);
+  assert(t[2] == 0x55);
+  assert(t[3] == 0x51);
+  assert(t[4] == 0x4E);
+  assert(t[5] == 0x55);
+
+  byte_to_g6(t, 4, a);
+  g6_to_byte(a, t, 4);
+
+  assert(t[0] == 0x51);
+  assert(t[1] == 0x4E);
+  assert(t[2] == 0x55);
+  assert(t[3] == 0x51);
+}
+
+void test_cbc_encrypt() {
+  uint8_t bm[100], bc[100], biv[100], bk[100];
+
+  bm[0] = 49; bm[1] = 50; bm[2] = 51; bm[3] = 52; bm[4] = 53; bm[5] = 54;
+  biv[0] = 71; biv[1] = 147; biv[2] = 153;
+  bk[0] = 115; bk[1] = 41; bk[2] = 4;
+  bc[0] = 0; bc[1] = 112; bc[2] = 244;
+  bunny24_encrypt_cbc(bm, 6, bk, biv);
+  printf("bm[0] = %d\n", bm[0]);
+  assert(bm[0] == bc[0]);
+  assert(bm[1] == bc[1]);
+  assert(bm[2] == bc[2]);
+  assert(bm[3] == bc[3]);
+  assert(bm[4] == bc[4]);
+  assert(bm[5] == bc[5]);
+}
+
 void test_encrypt() {
   array k, c, m;
   array t;  /* XXX: this is only for checking consistency */
@@ -493,6 +532,10 @@ int main() {
   //test_mixing_layer();
 
   test_sbox();
+
+  test_conversion();
+
+  test_cbc_encrypt();
 
   test_encrypt();
 

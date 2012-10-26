@@ -1,4 +1,6 @@
 #include "bunny_internals.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 /* sums a and b, stores result into a */
 void array_inc(array a, const array b) {
@@ -75,4 +77,69 @@ void decrypt_cbc_internal(array* m, int n, const array k, const array iv) {
 
     encrypt_internal(m[0], k);
     array_inc(m[0], iv);
+}
+
+void byte_to_g6(uint8_t* inp, int n, array* out) {
+    int i;
+    uint32_t tmp, x1, x2, x3;
+
+    for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
+        x1 = inp[i] << 24;
+        x2 = i+1 < n ? (inp[i+1] << 16) : 0;
+        x3 = i+2 < n ? (inp[i+2] << 8) : 0;
+
+        tmp = x1 + x2 + x3;
+        printf("i=%d tmp=%d\n", i, tmp);
+        out[i / 3][0] = (tmp & 0xFC000000) >> 26;
+        out[i / 3][1] = (tmp & 0x03F00000) >> 20;
+        out[i / 3][2] = (tmp & 0x000FC000) >> 14;
+        out[i / 3][3] = (tmp & 0x00003F00) >> 8;
+    }
+}
+
+void g6_to_byte(array* inp, uint8_t* out, int n) {
+    int i;
+    uint32_t tmp, x1, x2, x3, x4;
+
+    for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
+        x1 = inp[i / 3][0] << 26;
+        x2 = inp[i / 3][1] << 20;
+        x3 = inp[i / 3][2] << 14;
+        x4 = inp[i / 3][3] << 8;
+
+        tmp = x1 + x2 + x3 + x4;
+        printf("i=%d tmp=%d\n", i, tmp & 0xFF000000 >> 24);
+        out[i] = (tmp & 0xFF000000) >> 24;
+        if (i+1 < n) out[i+1] = (tmp & 0x00FF0000) >> 16;
+        if (i+2 < n) out[i+2] = (tmp & 0x0000FF00) >> 8;
+    }
+}
+
+
+/* This is the public Bunny24 encrypt function
+ * m is an uint8_t array
+ * n is the length if m
+ * k is an uint8_t array of length 3 (24 bits)
+ * iv is an uint8_t array of length 3 (24 bits)
+ *
+ * Note: encryption is performed in-place
+ */
+void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
+    int i;
+    int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
+    array k_arr;
+    array iv_arr;
+
+    array* m_arr = (array*) malloc(len_m_arr * sizeof(uint8_t));
+    byte_to_g6(m, n, m_arr);
+
+    byte_to_g6(k, 3, &k_arr);
+
+    byte_to_g6(iv, 3, &iv_arr);
+
+    encrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
+
+    g6_to_byte(m_arr, m, n);
+
+    free(m_arr);
 }

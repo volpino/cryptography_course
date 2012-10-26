@@ -42,4 +42,10 @@ extern const uint8_t SB2i[];
 extern const uint8_t SB3i[];
 extern const uint8_t SB4i[];
 
+/* Conversions */
+void byte_to_g6(uint8_t* inp, int n, array* out);
+void g6_to_byte(array* inp, uint8_t* out, int n);
+
+void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv);
+
 #endif
