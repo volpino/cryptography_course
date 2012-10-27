@@ -51,22 +51,29 @@ c:   C0D43E7B7962E87347"""
 for case in a.split("\n\n"):
     m, iv, k, c = [x[5:] for x in case.split("\n")]
 
-    for i, b in enumerate(m):
-        print "bm[%d] = %d;" % (i, ord(b)),
+    for i, b in enumerate([m[i:i + 2] for i in range(0, len(m), 2)]):
+        if len(b) % 2 != 0:
+            b = b + "0"
+        print "  m1[%d] = %d;" % (i, int(b, 16)),
+        print "  m2[%d] = %d;" % (i, int(b, 16)),
     print ""
 
     for i, b in enumerate([iv[i:i + 2] for i in range(0, len(iv), 2)]):
-        print "biv[%d] = %d;" % (i, int(b, 16)),
+        print "  iv[%d] = %d;" % (i, int(b, 16)),
     print ""
 
     for i, b in enumerate([k[i:i + 2] for i in range(0, len(k), 2)]):
-        print "bk[%d] = %d;" % (i, int(b, 16)),
+        print "  k[%d] = %d;" % (i, int(b, 16)),
     print ""
 
     for i, b in enumerate([c[i:i + 2] for i in range(0, len(c), 2)]):
-        print "bc[%d] = %d;" % (i, int(b, 16)),
+        print "  c[%d] = %d;" % (i, int(b, 16)),
     print ""
 
-    print "bunny_encrypt_cbc(m, %d, k, iv);" % len(m)
-    for i, _ in enumerate(m):
-        print "assert(m[%d] == c[%d]);" % (i, i)
+    print "  bunny24_encrypt_cbc(m1, %d, k, iv);" % (len(m) / 2 + len(m) % 2)
+    for i in range(len(c) / 2):
+        print "  assert(m1[%d] == c[%d]);" % (i, i)
+
+    print "  bunny24_decrypt_cbc(c, %d, k, iv);" % (len(c) / 2)
+    for i in range(len(m) / 2 + len(m) % 2):
+        print "  assert(m2[%d] == c[%d]);" % (i, i)

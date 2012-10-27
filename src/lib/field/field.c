@@ -75,6 +75,3 @@ uint8_t g6_input() {
 void g6_print(uint8_t a) {
     printf(G6_BYTETOBINARYPATTERN, G6_BYTETOBINARY(a));
 }
-
-#undef G6_BYTETOBINARYPATTERN
-#undef G6_BYTETOBINARY

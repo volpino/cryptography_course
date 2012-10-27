@@ -75,7 +75,7 @@ void decrypt_cbc_internal(array* m, int n, const array k, const array iv) {
         array_inc(m[i], m[i-1]);
     }
 
-    encrypt_internal(m[0], k);
+    decrypt_internal(m[0], k);
     array_inc(m[0], iv);
 }
 
@@ -89,7 +89,6 @@ void byte_to_g6(uint8_t* inp, int n, array* out) {
         x3 = i+2 < n ? (inp[i+2] << 8) : 0;
 
         tmp = x1 + x2 + x3;
-        printf("i=%d tmp=%d\n", i, tmp);
         out[i / 3][0] = (tmp & 0xFC000000) >> 26;
         out[i / 3][1] = (tmp & 0x03F00000) >> 20;
         out[i / 3][2] = (tmp & 0x000FC000) >> 14;
@@ -97,6 +96,9 @@ void byte_to_g6(uint8_t* inp, int n, array* out) {
     }
 }
 
+/* Note: This functions assumes that n is a multiple of 3
+ * the output is always padded
+ */
 void g6_to_byte(array* inp, uint8_t* out, int n) {
     int i;
     uint32_t tmp, x1, x2, x3, x4;
@@ -108,10 +110,9 @@ void g6_to_byte(array* inp, uint8_t* out, int n) {
         x4 = inp[i / 3][3] << 8;
 
         tmp = x1 + x2 + x3 + x4;
-        printf("i=%d tmp=%d\n", i, tmp & 0xFF000000 >> 24);
         out[i] = (tmp & 0xFF000000) >> 24;
-        if (i+1 < n) out[i+1] = (tmp & 0x00FF0000) >> 16;
-        if (i+2 < n) out[i+2] = (tmp & 0x0000FF00) >> 8;
+        /*if (i+1 < n)*/ out[i+1] = (tmp & 0x00FF0000) >> 16;
+        /*if (i+2 < n)*/ out[i+2] = (tmp & 0x0000FF00) >> 8;
     }
 }
 
@@ -127,6 +128,7 @@ void g6_to_byte(array* inp, uint8_t* out, int n) {
 void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     int i;
     int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
+    int index;
     array k_arr;
     array iv_arr;
 
@@ -138,6 +140,27 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     byte_to_g6(iv, 3, &iv_arr);
 
     encrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
+
+    g6_to_byte(m_arr, m, n);
+
+    free(m_arr);
+}
+
+void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
+    int i;
+    int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
+    int index;
+    array k_arr;
+    array iv_arr;
+
+    array* m_arr = (array*) malloc(len_m_arr * sizeof(uint8_t));
+    byte_to_g6(m, n, m_arr);
+
+    byte_to_g6(k, 3, &k_arr);
+
+    byte_to_g6(iv, 3, &iv_arr);
+
+    decrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
 
     g6_to_byte(m_arr, m, n);
 
