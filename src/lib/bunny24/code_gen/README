@@ -1,0 +1,4 @@
+This files are only scripts or C sources to generate tests or precompute
+tables (e.g.: S-BOXes, mixing layer)
+
+Development use only

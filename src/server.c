@@ -32,8 +32,7 @@ int wait_connection(int channel_fd)
 int main(int argc, char ** argv)
 {
 	int sc_fifo_fd, cs_fifo_fd;
-	u_int8_t * buff;
- 
+
 	/* Mandatory arguments */
 	if( !argv[1] || !argv[2] || !argv[3] ) {
 		fprintf(stderr,"server [server->client fifo] [client->server fifo] [password file]\n");
@@ -56,12 +55,12 @@ int main(int argc, char ** argv)
 			fprintf(stderr,"Communication error...\n");
 			goto next;
 		}
-		
+
 		/* Write OK */
 		write_OK(sc_fifo_fd);
-     
+
     /* Server authentication */
-	
+
     // GET private rsa key of S, (s_prk,n) from "server_folder/server_rsa_private_key.txt"
     /* ... */
     // READ c from S
@@ -83,20 +82,20 @@ int main(int argc, char ** argv)
     // ENCRYPT r using s_puk[i] -> c = r^s_puk[i] mod n[i]
     /* ... */
     // WRITE c to C
-    /* ... */    
-		
+    /* ... */
+
     /* Negotiation of the cipher suite */
-    /* ... */    
-    
+    /* ... */
+
     /* Negotiation of the private key */
-    /* ... */    
+    /* ... */
 
     /* Encrypt communication */
-    /* ... */    
-    
+    /* ... */
+
     /* Disconnection */
-    /* ... */        
-    
+    /* ... */
+
 next:
 		/* Close current connection */
 		fprintf(stderr,"Closing connection...\n");

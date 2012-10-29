@@ -36,8 +36,6 @@ int main() {
   assert(gf_rotate(0x4,  2, 4) == 0x1);
   assert(gf_rotate(0x8,  3, 4) == 0x1);
 
-  printf("OK\n");
-
   return 0;
 }
 

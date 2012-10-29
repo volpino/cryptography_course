@@ -126,9 +126,7 @@ void g6_to_byte(array* inp, uint8_t* out, int n) {
  * Note: encryption is performed in-place
  */
 void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
-    int i;
     int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
-    int index;
     array k_arr;
     array iv_arr;
 
@@ -147,9 +145,7 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
 }
 
 void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
-    int i;
     int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
-    int index;
     array k_arr;
     array iv_arr;
 
