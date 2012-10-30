@@ -3,7 +3,7 @@ include Makefile.inc
 SERVER_OBJS=server.o common.o
 CLIENT_OBJS=client.o common.o
 
-LIB_DIRS=field bunny24 lfsr
+LIB_DIRS=field bunny24 bunny24_prng lfsr
 
 all: libs server client
 
