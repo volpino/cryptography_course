@@ -1,20 +1,25 @@
 include ../../Makefile.inc
 
-OBJ=bunny24_prng.o
 LIB=../libbunny24_prng.a
-TEST=
 
-all: $(LIB)
+SOURCES=bunny24_prng.c
+OBJS=$(SOURCES:.c=.o)
 
-test: $(TEST)
-	./$(TEST) && echo "Test passed :D"
+TEST=bunny24_prng_test
 
-bunny24_prng.o: bunny24_prng.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+all: $(SOURCES) $(LIB)
+test: $(LIB) $(TEST)
+	./$(TEST) && echo "Tests passed! :D"
 
-../libbunny24_prng.a : bunny24_prng.o
+$(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) rv $@ $?
 	$(RANLIB) $@
 
+$(TEST): $(OBJS) test.c
+	$(CC) $(CFLAGS) $^ -o $@ -L .. -lbunny24 -lfield
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(OBJ) $(TEST) $(LIB)
+	$(RM) $(OBJS) $(LIB) $(TEST)

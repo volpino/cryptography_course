@@ -1,4 +1,6 @@
 #include "../bunny24.h"
+#include "../bunny24_prng.h"
+
 
 void bunny24_prng(const uint8_t* seed, int n, uint8_t* out, int m) {
     int i;

@@ -130,7 +130,7 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     array k_arr;
     array iv_arr;
 
-    array* m_arr = (array*) malloc(len_m_arr * sizeof(uint8_t));
+    array* m_arr = (array*) malloc(len_m_arr * sizeof(array));
     byte_to_g6(m, n, m_arr);
 
     byte_to_g6(k, 3, &k_arr);
@@ -149,7 +149,7 @@ void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     array k_arr;
     array iv_arr;
 
-    array* m_arr = (array*) malloc(len_m_arr * sizeof(uint8_t));
+    array* m_arr = (array*) malloc(len_m_arr * sizeof(array));
     byte_to_g6(m, n, m_arr);
 
     byte_to_g6(k, 3, &k_arr);

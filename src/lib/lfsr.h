@@ -1,5 +1,5 @@
-#ifndef _LFSR_H
-#define _LFSR_H
+#ifndef _LFSR_H_
+#define _LFSR_H_
 
 #include <stdint.h>
 

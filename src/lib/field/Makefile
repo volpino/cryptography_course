@@ -1,23 +1,25 @@
 include ../../Makefile.inc
 
-OBJ=field.o
 LIB=../libfield.a
+
+SOURCES=field.c
+OBJS=$(SOURCES:.c=.o)
+
 TEST=field_test
 
-all: $(LIB)
+all: $(SOURCES) $(LIB)
+test: $(LIB) $(TEST)
+	./$(TEST) && echo "Tests passed! :D"
 
-test: $(TEST)
-	./$(TEST) && echo "Test passed :D"
-
-field.o: field.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-../libfield.a : field.o
+$(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) rv $@ $?
 	$(RANLIB) $@
 
-field_test: field.c test.c
+$(TEST): $(OBJS) test.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(OBJ) $(TEST) $(LIB)
+	$(RM) $(OBJS) $(LIB) $(TEST)

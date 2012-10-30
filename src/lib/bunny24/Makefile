@@ -1,22 +1,22 @@
 include ../../Makefile.inc
 
 LIB=../libbunny24.a
-TEST=bunny24_test
 
 SOURCES=constants.c key_schedule.c mixing_layer.c cipher.c
 OBJS=$(SOURCES:.c=.o)
-DEPS=../libfield.a $(OBJS)
+
+TEST=bunny24_test
 
 all: $(SOURCES) $(LIB)
-test: $(TEST)
+test: $(LIB) $(TEST)
 	./$(TEST) && echo "Tests passed! :D"
 
-../libbunny24.a: $(DEPS)
+$(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) rv $@ $?
 	$(RANLIB) $@
 
-bunny24_test: ../bunny24.o test.c
-	$(CC) $(CFLAGS) $^ -o $@
+$(TEST): $(OBJS) test.c
+	$(CC) $(CFLAGS) $^ -o $@ -L .. -lfield
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@

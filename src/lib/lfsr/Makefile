@@ -1,23 +1,25 @@
 include ../../Makefile.inc
 
-OBJ=lfsr.o
 LIB=../liblfsr.a
+
+SOURCES=lfsr.c
+OBJS=$(SOURCES:.c=.o)
+
 TEST=lfsr_test
 
-all: $(LIB)
+all: $(SOURCES) $(LIB)
+test: $(LIB) $(TEST)
+	./$(TEST) && echo "Tests passed! :D"
 
-test: $(TEST)
-	./$(TEST) && echo "Test passed :D"
-
-lfsr.o: lfsr.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-../liblfsr.a : lfsr.o
+$(LIB): $(OBJS)
 	$(AR) $(ARFLAGS) rv $@ $?
 	$(RANLIB) $@
 
-lfsr_test: lfsr.c test.c
+$(TEST): $(OBJS) test.c
 	$(CC) $(CFLAGS) $^ -o $@
 
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(OBJ) $(TEST) $(LIB)
+	$(RM) $(OBJS) $(LIB) $(TEST)
