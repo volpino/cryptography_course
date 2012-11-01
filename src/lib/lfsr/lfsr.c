@@ -20,7 +20,7 @@ uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
   }
 
   for (i=0; i<out_bits; i++) {
-    /* compute ot bit */
+    /* compute output bit */
     temp = poly & state;
     bit = 0;
     for (j=0; j<poly_deg; j++) {
@@ -34,5 +34,6 @@ uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
     state <<= 1;
     state |= bit;
   }
+  /* should we state &= mask;  ?? */
   return state;
 }

@@ -13,4 +13,17 @@
 uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
               uint8_t* output, int out_bits);
 
+
+
+void lfsr_pseudorand_init(uint64_t poly, int poly_deg);
+void lfsr_pseudorand_seed(uint64_t state);
+void lfsr_pseudorand_init_8();
+void lfsr_pseudorand_random_seed_8();
+void lfsr_prand_countdown_check();
+uint8_t lfsr_pseudorand_bit();
+uint8_t lfsr_pseudorand_byte();
+
+
+
+
 #endif
