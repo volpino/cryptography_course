@@ -1,5 +1,6 @@
 #include "../lfsr.h"
 
+
 /* - poly is a polynome, of degree poly_deg
      least significant bit is coeff. of x^0
    - state is the initial state, only matter least significant poly_deg bits
@@ -7,9 +8,11 @@
      from index 0 to out_len-1, each byte from least to most significant bit
    returns the new state where the lfsr arrived after outputting the bits
  */
-uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
-              uint8_t* output, int out_bits)
-{
+void lfsr_rotate(lfsr* reg, uint8_t* output, int out_bits) {
+  uint64_t poly = reg->poly;
+  uint64_t state = reg->state;
+  int poly_deg = reg->poly_deg;
+
   int i, j, out_len;
   uint64_t temp, bit;
 
@@ -36,4 +39,10 @@ uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
   }
   /* should we state &= mask;  ?? */
   return state;
+}
+
+uint8_t lfsr_get_bit(lfsr* reg, int index) {
+}
+
+void lfsr_set_bit(lfsr* reg, int index, uint8_t value) {
 }

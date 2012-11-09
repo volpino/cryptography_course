@@ -10,10 +10,6 @@
      from index 0 to out_len-1, each byte from least to most significant bit
    returns the new state where the lfsr arrived after outputting the bits
  */
-uint64_t lfsr(uint64_t poly, int poly_deg, uint64_t state,
-              uint8_t* output, int out_bits);
-
-
 
 void lfsr_pseudorand_init(uint64_t poly, int poly_deg);
 void lfsr_pseudorand_seed(uint64_t state);
@@ -23,7 +19,15 @@ void lfsr_prand_countdown_check();
 uint8_t lfsr_pseudorand_bit();
 uint8_t lfsr_pseudorand_byte();
 
+typedef struct {
+  uint64_t poly;
+  uint64_t state;
+  int poly_deg;
+} lfsr;
 
+void lfsr_rotate(lfsr* reg, uint8_t* output, int out_bits);
+uint8_t lfsr_get_bit(lfsr* reg, int index);
+void lfsr_set_bit(lfsr* reg, int index, uint8_t value);
 
 
 #endif
