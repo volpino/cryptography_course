@@ -144,6 +144,15 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     free(m_arr);
 }
 
+
+/* This is the public Bunny24 decrypt function
+ * m is an uint8_t array
+ * n is the length if m
+ * k is an uint8_t array of length 3 (24 bits)
+ * iv is an uint8_t array of length 3 (24 bits)
+ *
+ * Note: encryption is performed in-place
+ */
 void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
     array k_arr;
