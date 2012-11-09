@@ -1,4 +1,5 @@
 #include "../lfsr.h"
+#include "A5_1_internals.h"
 #include <stdlib.h>
 
 #define KEY_LEN 64
@@ -26,11 +27,11 @@ void keyloading(lfsr* registers, int len,
 }
 
 /* runs 1 shift operation, returns the bit (either all zeroes, or not) */
-unint8_t shift_majority_1(reg_set* regs) {
+uint8_t shift_majority_1(reg_set* regs) {
   int i, count_0 = 0, count_1 = 0;
   uint8_t out_bit, temp, tap, majority;
   for(i=0; i<regs->num; i++) {
-    if (regs->registers[i] & regs->taps[i])
+    if (regs->registers[i].state & regs->taps[i])
       count_1 ++;
     else
       count_0 ++;
@@ -38,11 +39,11 @@ unint8_t shift_majority_1(reg_set* regs) {
   majority = (count_1 > count_0) ? 1 : 0;
   out_bit = 0x0;
   for(i=0; i<regs->num; i++) {
-    tap = (regs->registers[i] & regs->taps[i]) ? 1 : 0;
+    tap = (regs->registers[i].state & regs->taps[i]) ? 1 : 0;
     if (!(tap ^ majority)) {/* if tap agrees with majority */
-      lfsr_rotate(regs->registers[i], &temp, 1);
+      lfsr_rotate(&(regs->registers[i]), &temp, 1);
       out_bit ^= (temp ? 1 : 0);
     }
   }
-  return ot_bit;
+  return out_bit;
 }
