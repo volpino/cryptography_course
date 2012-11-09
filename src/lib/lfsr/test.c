@@ -98,11 +98,14 @@ void g64_print(uint64_t a) {
 
 void lfsr_test() {
   int i;
-  uint64_t poly = 0xd;
+  lfsr reg;
+  reg.poly = 0xd;
+  reg.state = 0x5;
+  reg.poly_deg = 3;
   uint8_t buffer[50];
-  lfsr(poly, 3, 0x1, buffer, 400);
+  lfsr_rotate(&reg, buffer, 400);
 
-  for (i=0; i<50; i++) {
+  for (i=0; i<10; i++) {
     g8_print(buffer[i]); printf("\n");
   }
 }
@@ -116,6 +119,7 @@ void lfsr_prandom_status() {
   */
 }
 
+/*
 void lfsr_prandom_test() {
   int i;
   lfsr_prandom_status();
@@ -124,13 +128,7 @@ void lfsr_prandom_test() {
   printf("Getting random...\n");
   lfsr_pseudorand_random_seed_8();
   lfsr_prandom_status();
-  /*
-  for(i=0; i<34; i++){
-    g8_print(lfsr_pseudorand_byte());
-    if (i%4 == 3) printf("\n");
-  }
-  printf("\n");
-  */
+
   for(i=0; i<255; i++){
     printf("%i", lfsr_pseudorand_bit());
   }
@@ -142,9 +140,10 @@ void lfsr_prandom_test() {
   printf("\n");
   lfsr_prandom_status();
 }
+*/
 
 int main() {
   lfsr_test();
-  lfsr_prandom_test();
+
   return 0;
 }
