@@ -3,10 +3,11 @@
 
 #include "../lfsr.h"
 
+/* This struct represents a set of registers */
 typedef struct {
-  int num;
-  lfsr *registers;
-  uint64_t taps; // one one-bit mask for each register
+  int num;  /* length of registers and taps arrays */
+  lfsr *registers;  /* array of registers */
+  uint64_t* taps; /* array of one-bit masks, one for each register */
 } reg_set;
 
 #endif
