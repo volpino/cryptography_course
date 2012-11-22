@@ -10,4 +10,7 @@ typedef struct {
   uint64_t* taps; /* array of one-bit masks, one for each register */
 } reg_set_t;
 
+
+void a5_1(uint8_t* key, uint8_t* output, int out_bits);
+
 #endif
