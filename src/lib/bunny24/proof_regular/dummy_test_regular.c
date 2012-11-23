@@ -2,18 +2,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void array_print_(array a) {
+void b24_t_print_(b24_t a) {
   int index;
-  for (index=0; index<ARRAY_LEN; index++) {
+  for (index=0; index<B24_T_LEN; index++) {
     g6_print(a[index]);
   }
   printf("\n");
 }
 
-void array_increment(array a) {
+void b24_t_increment(b24_t a) {
   int i;
   uint8_t carry = 1;
-  for(i=0; i<ARRAY_LEN && carry == 1; i++) {
+  for(i=0; i<B24_T_LEN && carry == 1; i++) {
     if (a[i] != 63) {
       carry = 0;
     }
@@ -21,24 +21,24 @@ void array_increment(array a) {
   }
 }
 
-void array_cp_(const array src, array dst) {
+void b24_t_cp_(const b24_t src, b24_t dst) {
   int i;
-  for(i=0; i<ARRAY_LEN; i++) {
+  for(i=0; i<B24_T_LEN; i++) {
     dst[i] = src[i];
   }
 }
 
-void array_zero(array a) {
+void b24_t_zero(b24_t a) {
   int i;
-  for(i=0; i<ARRAY_LEN; i++) {
+  for(i=0; i<B24_T_LEN; i++) {
     a[i] = 0;
   }
 }
 
-int array_to_int(const array a) {
+int b24_t_to_int(const b24_t a) {
   int i;
   int res = a[0] & 63;
-  for (i=1; i<ARRAY_LEN; i++) {
+  for (i=1; i<B24_T_LEN; i++) {
     res <<= 6;
     res += (a[i] & 63);
   }
@@ -46,9 +46,9 @@ int array_to_int(const array a) {
 }
 
 int main() {
-  array message;
-  array key1, key2;
-  array enc1, enc2;
+  b24_t message;
+  b24_t key1, key2;
+  b24_t enc1, enc2;
 
   message[0] = 1;
   message[1] = message[2] = message[3] = 0;
@@ -63,21 +63,21 @@ int main() {
   key2[2] = 1;
   key2[3] = 0;
 
-  array_cp_(message, enc1);
-  encrypt_internal(enc1, key1);
-  array_cp_(message, enc2);
-  encrypt_internal(enc2, key2);
+  b24_t_cp_(message, enc1);
+  b24_encrypt(enc1, key1);
+  b24_t_cp_(message, enc2);
+  b24_encrypt(enc2, key2);
 
   printf("Message: ");
-  array_print_(message);
+  b24_t_print_(message);
   printf("Key one: ");
-  array_print_(key1);
+  b24_t_print_(key1);
   printf("Key two: ");
-  array_print_(key2);
+  b24_t_print_(key2);
   printf("Encryption one: ");
-  array_print_(enc1);
+  b24_t_print_(enc1);
   printf("Encryption two: ");
-  array_print_(enc2);
+  b24_t_print_(enc2);
 
   exit(0);
 }
