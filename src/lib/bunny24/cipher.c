@@ -79,6 +79,7 @@ void decrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
     b24_inc(m[0], iv);
 }
 
+/* n is the length of inp */
 void byte_to_b24(uint8_t* inp, int n, b24_t* out) {
     int i;
     uint32_t tmp, x1, x2, x3;
