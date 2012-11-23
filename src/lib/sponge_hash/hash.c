@@ -56,4 +56,3 @@ void sponge_hash(uint8_t* input, int len, uint8_t* out) {
   sponge_hash_internal(m, len, key, out);
   free(m);
 }
-
