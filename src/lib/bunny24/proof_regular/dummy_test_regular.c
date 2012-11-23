@@ -64,9 +64,9 @@ int main() {
   key2[3] = 0;
 
   b24_t_cp_(message, enc1);
-  encrypt_internal(enc1, key1);
+  b24_encrypt(enc1, key1);
   b24_t_cp_(message, enc2);
-  encrypt_internal(enc2, key2);
+  b24_encrypt(enc2, key2);
 
   printf("Message: ");
   b24_t_print_(message);

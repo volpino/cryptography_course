@@ -24,7 +24,7 @@ void sboxes_dec(b24_t c){
   c[3] = SB4i[c[3]];
 }
 
-void encrypt_internal(b24_t m, const b24_t k) {
+void b24_encrypt(b24_t m, const b24_t k) {
   b24_t rkeys[16];
   int round;
 
@@ -39,7 +39,7 @@ void encrypt_internal(b24_t m, const b24_t k) {
   }
 }
 
-void decrypt_internal(b24_t m, const b24_t k) {
+void b24_decrypt(b24_t m, const b24_t k) {
   b24_t rkeys[16];
   int round;
 
@@ -59,11 +59,11 @@ void encrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
     int i;
 
     b24_inc(m[0], iv);
-    encrypt_internal(m[0], k);
+    b24_encrypt(m[0], k);
 
     for (i=1; i<n; i++) {
         b24_inc(m[i], m[i-1]);
-        encrypt_internal(m[i], k);
+        b24_encrypt(m[i], k);
     }
 }
 
@@ -71,11 +71,11 @@ void decrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
     int i;
 
     for (i=n-1; i>0; i--) {
-        decrypt_internal(m[i], k);
+        b24_decrypt(m[i], k);
         b24_inc(m[i], m[i-1]);
     }
 
-    decrypt_internal(m[0], k);
+    b24_decrypt(m[0], k);
     b24_inc(m[0], iv);
 }
 

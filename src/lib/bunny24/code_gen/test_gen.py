@@ -93,7 +93,7 @@ for case in string.split("\n\n"):
         print "c[%d] = %d;" % (i, int(c[6*i:6*i+6], 2)),
     print ""
 
-    print "encrypt_internal(m, k);"
+    print "b24_encrypt(m, k);"
     for i in range(4):
         print "assert(m[%d] == c[%d]);" % (i, i)
     print ""

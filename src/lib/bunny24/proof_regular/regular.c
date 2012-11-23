@@ -69,7 +69,7 @@ int main() {
 
     for (j=0; j<SPACE; j++) {
       b24_t_cp_(message, m_tmp);
-      encrypt_internal(m_tmp, key);
+      b24_encrypt(m_tmp, key);
       hash = b24_t_to_int(m_tmp);
       if (matrix[hash]) {
         printf("Noooooo...\n");
