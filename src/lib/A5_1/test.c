@@ -1,4 +1,5 @@
 #include "../lfsr.h"
+#include "A5_1_internals.h"
 #include <stdlib.h>
 
 #include <stdio.h>
@@ -31,4 +32,5 @@ int main() {
     g8_print(buff[i]);
   }
   printf("\b\n");
+  return 0;
 }
