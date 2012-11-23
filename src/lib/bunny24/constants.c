@@ -1,7 +1,7 @@
 #include "bunny_internals.h"
 
 /* Mixing layer matrix */
-const uint8_t lambda[ARRAY_LEN][ARRAY_LEN] = {
+const uint8_t lambda[B24_T_LEN][B24_T_LEN] = {
     {0x23, 0x3b, 0x38, 0x3d},
     {0x0d, 0x3c, 0x16, 0x18},
     {0x03, 0x20, 0x17, 0x37},
@@ -9,7 +9,7 @@ const uint8_t lambda[ARRAY_LEN][ARRAY_LEN] = {
 };
 
 /* Transposal of mix layer matrix (useful for matrix multiplication) */
-const uint8_t lambdaT[ARRAY_LEN][ARRAY_LEN] = {
+const uint8_t lambdaT[B24_T_LEN][B24_T_LEN] = {
     {0x23, 0x0d, 0x03, 0x2c},
     {0x3b, 0x3c, 0x20, 0x26},
     {0x38, 0x16, 0x17, 0x38},
@@ -17,7 +17,7 @@ const uint8_t lambdaT[ARRAY_LEN][ARRAY_LEN] = {
 };
 
 /* Mix layer inverse matrix (useful for matrix multiplication) */
-const uint8_t lambda_i[ARRAY_LEN][ARRAY_LEN] = {
+const uint8_t lambda_i[B24_T_LEN][B24_T_LEN] = {
   {0x1d, 0x3, 0xb, 0x19},
   {0x11, 0x2f, 0x3e, 0x3d},
   {0x7, 0x17, 0x39, 0xc},
@@ -25,7 +25,7 @@ const uint8_t lambda_i[ARRAY_LEN][ARRAY_LEN] = {
 };
 
 /* Transposal of mix layer inverse matrix (useful for matrix multiplication) */
-const uint8_t lambdaT_i[ARRAY_LEN][ARRAY_LEN] = {
+const uint8_t lambdaT_i[B24_T_LEN][B24_T_LEN] = {
   {0x1d, 0x11, 0x7, 0xa},
   {0x3, 0x2f, 0x17, 0x3a},
   {0xb, 0x3e, 0x39, 0xd},

@@ -4,25 +4,19 @@
 #include "bunny_internals.h"
 
 void test_key_schedule() {
-  array key;
-  array rkeys[16];
+  b24_t key;
+  b24_t rkeys[16];
   int i;
-  int index; /* required for array_print()...
-                perhaps it should be NOT a macro */
 
   /* key = (1 0 0 1 0 0 | 0 1 1 0 1 1 | 1 0 1 0 0 1 | 1 0 0 0 0 0) */
   key[0] = 0x24; key[1] = 0x1b; key[2] = 0x29; key[3] = 0x20;
 
   key_schedule(key, rkeys);
-
-  for (i=0; i<16; i++) {
-    array_print(rkeys[i]);
-  }
 }
 
 void test_conversion() {
   uint8_t t[] = {0x51, 0x4E, 0x55, 0x51, 0x4E, 0x55};
-  array a[2];
+  b24_t a[2];
   byte_to_g6(t, 6, a);
   g6_to_byte(a, t, 6);
 
@@ -229,8 +223,8 @@ void test_cbc_encrypt() {
 }
 
 void test_encrypt() {
-  array k, c, m;
-  array t;  /* XXX: this is only for checking consistency */
+  b24_t k, c, m;
+  b24_t t;  /* XXX: this is only for checking consistency */
   m[0] = 9; m[1] = 53; m[2] = 32; m[3] = 60;
   t[0] = 9; t[1] = 53; t[2] = 32; t[3] = 60;
   k[0] = 61; k[1] = 13; k[2] = 19; k[3] = 16;
@@ -426,14 +420,10 @@ void test_encrypt() {
 
 void test_mixing_layer() {
   //1 1 0 0 1 1   1 0 0 1 0 0   0 0 0 1 0 1   1 0 0 0 0 0
-  array k;
-  int index;
+  b24_t k;
   k[0] = 0x33; k[1] = 0x24; k[2] = 0x05; k[3] = 0x20;
-  array_print(k);
   mixing_layer(k);
-  array_print(k);
   mixing_layer_inv(k);
-  array_print(k);
 }
 
 void test_sbox() {

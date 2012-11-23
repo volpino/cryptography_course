@@ -3,34 +3,28 @@
 
 #include "../field.h"
 
-#define ARRAY_LEN 4
+#define B24_T_LEN 4
 #define ROUND_NUM 15
 
-typedef uint8_t array[ARRAY_LEN];
+typedef uint8_t b24_t[B24_T_LEN];
 
 #define bunny_add(a, b) gf_add((a), (b))
 #define bunny_mul(a, b) gf_mul((a), (b), 6, 0x1b) /* (x^6+) x^4 + x^3 + x + 1 */
 #define bunny_rotate(a, b) gf_rotate((a), (b), 6)
 
-#define array_print(a)                          \
-  for (index=0; index<ARRAY_LEN; index++) {     \
-    g6_print(a[index]);                         \
-  }                                             \
-  printf("\n");
+void key_schedule(const b24_t key, b24_t* result);
+void mixing_layer(b24_t c);
+void mixing_layer_inv(b24_t c);
 
-void key_schedule(const array key, array* result);
-void mixing_layer(array c);
-void mixing_layer_inv(array c);
-
-void encrypt_internal(array m, const array k);
-void decrypt_internal(array m, const array k);
+void encrypt_internal(b24_t m, const b24_t k);
+void decrypt_internal(b24_t m, const b24_t k);
 
 /* Mixing layer matrix */
-extern const uint8_t lambda[ARRAY_LEN][ARRAY_LEN];
+extern const uint8_t lambda[B24_T_LEN][B24_T_LEN];
 /* Transposal of mix layer matrix (useful for matrix multiplication) */
-extern const uint8_t lambdaT[ARRAY_LEN][ARRAY_LEN];
+extern const uint8_t lambdaT[B24_T_LEN][B24_T_LEN];
 
-extern const uint8_t lambdaT_i[ARRAY_LEN][ARRAY_LEN];
+extern const uint8_t lambdaT_i[B24_T_LEN][B24_T_LEN];
 
 /* S-Boxes */
 extern const uint8_t SB1[];
@@ -43,8 +37,8 @@ extern const uint8_t SB3i[];
 extern const uint8_t SB4i[];
 
 /* Conversions */
-void byte_to_g6(uint8_t* inp, int n, array* out);
-void g6_to_byte(array* inp, uint8_t* out, int n);
+void byte_to_g6(uint8_t* inp, int n, b24_t* out);
+void g6_to_byte(b24_t* inp, uint8_t* out, int n);
 
 void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv);
 void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv);
