@@ -79,7 +79,7 @@ void decrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
     b24_inc(m[0], iv);
 }
 
-void byte_to_g6(uint8_t* inp, int n, b24_t* out) {
+void byte_to_b24(uint8_t* inp, int n, b24_t* out) {
     int i;
     uint32_t tmp, x1, x2, x3;
 
@@ -99,7 +99,7 @@ void byte_to_g6(uint8_t* inp, int n, b24_t* out) {
 /* Note: This functions assumes that n is a multiple of 3
  * the output is always padded
  */
-void g6_to_byte(b24_t* inp, uint8_t* out, int n) {
+void b24_to_byte(b24_t* inp, uint8_t* out, int n) {
     int i;
     uint32_t tmp, x1, x2, x3, x4;
 
@@ -131,15 +131,15 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     b24_t iv_arr;
 
     b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
-    byte_to_g6(m, n, m_arr);
+    byte_to_b24(m, n, m_arr);
 
-    byte_to_g6(k, 3, &k_arr);
+    byte_to_b24(k, 3, &k_arr);
 
-    byte_to_g6(iv, 3, &iv_arr);
+    byte_to_b24(iv, 3, &iv_arr);
 
     encrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
 
-    g6_to_byte(m_arr, m, n);
+    b24_to_byte(m_arr, m, n);
 
     free(m_arr);
 }
@@ -159,15 +159,15 @@ void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
     b24_t iv_arr;
 
     b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
-    byte_to_g6(m, n, m_arr);
+    byte_to_b24(m, n, m_arr);
 
-    byte_to_g6(k, 3, &k_arr);
+    byte_to_b24(k, 3, &k_arr);
 
-    byte_to_g6(iv, 3, &iv_arr);
+    byte_to_b24(iv, 3, &iv_arr);
 
     decrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
 
-    g6_to_byte(m_arr, m, n);
+    b24_to_byte(m_arr, m, n);
 
     free(m_arr);
 }

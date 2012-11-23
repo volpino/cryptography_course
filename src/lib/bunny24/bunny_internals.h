@@ -31,9 +31,5 @@ extern const uint8_t SB2i[];
 extern const uint8_t SB3i[];
 extern const uint8_t SB4i[];
 
-/* Conversions */
-void byte_to_g6(uint8_t* inp, int n, b24_t* out);
-void g6_to_byte(b24_t* inp, uint8_t* out, int n);
-
 
 #endif

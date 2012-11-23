@@ -17,8 +17,8 @@ void test_key_schedule() {
 void test_conversion() {
   uint8_t t[] = {0x51, 0x4E, 0x55, 0x51, 0x4E, 0x55};
   b24_t a[2];
-  byte_to_g6(t, 6, a);
-  g6_to_byte(a, t, 6);
+  byte_to_b24(t, 6, a);
+  b24_to_byte(a, t, 6);
 
   assert(t[0] == 0x51);
   assert(t[1] == 0x4E);
@@ -27,8 +27,8 @@ void test_conversion() {
   assert(t[4] == 0x4E);
   assert(t[5] == 0x55);
 
-  byte_to_g6(t, 4, a);
-  g6_to_byte(a, t, 4);
+  byte_to_b24(t, 4, a);
+  b24_to_byte(a, t, 4);
 
   assert(t[0] == 0x51);
   assert(t[1] == 0x4E);
