@@ -14,17 +14,10 @@ void sponge_hash_internal(b24_t* m, int len_m, b24_t key, uint8_t* out) {
 
   /* absorbing phase */
   for (i=0; i<len_m; i++) {
-    //printf("1)");
-    //g6_print(state[0]);g6_print(state[1]);g6_print(state[2]);g6_print(state[3]);printf("\n");
     for (j=0; j<B24_T_LEN; j++) {
-      //printf("XOR: "); g6_print(state[j]); g6_print(m[i][j]); printf("\n");
       state[j] ^= m[i][j];
     }
-    //printf("2)");
-    //g6_print(state[0]);g6_print(state[1]);g6_print(state[2]);g6_print(state[3]);printf("\n");
     b24_encrypt(state, key);
-    //printf("3)");
-    //g6_print(state[0]);g6_print(state[1]);g6_print(state[2]);g6_print(state[3]);printf("\n\n\n");
   }
 
   /* squeezing phase */
