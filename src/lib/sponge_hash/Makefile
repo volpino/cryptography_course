@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-LIB=../libhash.a
+LIB=../libspongehash.a
 
 SOURCES=hash.c
 OBJS=$(SOURCES:.c=.o)
@@ -16,7 +16,7 @@ $(LIB): $(OBJS)
 	$(RANLIB) $@
 
 $(TEST): $(OBJS) test.c
-	$(CC) $(CFLAGS) $^ -o $@ -L .. -lfield -lbunny24
+	$(CC) $(CFLAGS) $^ -o $@ -L .. -lspongehash -lbunny24 -lfield
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
