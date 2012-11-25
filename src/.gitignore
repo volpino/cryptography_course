@@ -2,3 +2,4 @@ client
 server
 *.fifo
 a.out
+*_test
