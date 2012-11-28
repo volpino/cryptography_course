@@ -26,7 +26,9 @@ int main() {
   uint8_t k[8] = {0x48, 0xc4, 0xa2, 0xe6, 0x91, 0xd5, 0xb3, 0xf7};
   uint8_t buff[num_test];
 
-  a5_1(k, buff, num_test * 8);
+  /*a5_1(k, buff, num_test * 8);*/
+  /*maj5(k, buff, num_test * 8);*/
+  all5(k, buff, num_test * 8);
 
   for(i=0; i<num_test; i++) {
     g8_print(buff[i]);
