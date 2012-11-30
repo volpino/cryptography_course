@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #define MSG_SIZE_MAX 2048
 #define CONNECTION_STRING "Hello!"

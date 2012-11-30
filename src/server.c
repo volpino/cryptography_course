@@ -29,6 +29,12 @@ int wait_connection(int channel_fd) {
 
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
+  int done;
+  char client_nm[256];
+  uint8_t rsa_n, rsa_e, rsa_d, rsa_client_e, rsa_client_n;
+  ssize_t msg_size;
+  u_int8_t * buff;
+  FILE *fp;
 
   /* Mandatory arguments */
   if (!argv[1] || !argv[2] || !argv[3]) {
@@ -58,27 +64,60 @@ int main(int argc, char ** argv) {
 
     /* Server authentication */
 
-    // GET private rsa key of S, (s_prk,n) from "server_folder/server_rsa_private_key.txt"
-    /* ... */
-    // READ c from S
-    /* ... */
-    // DECRYPT c using (s_prk,n) -> r' = c^s_prk mod n
-    /* ... */
-    // SEND r' to C
-    /* ... */
+    /* GET private rsa key of S, (s_prk,n) from "server_folder/server_rsa_private_key.txt" */
+    if ((fp = fopen("server_folder/server_rsa_private_key.txt", "r")) == NULL) {
+      fprintf(stderr, "Error while getting server RSA private key...\n");
+      goto next;
+    }
+    fscanf(fp, "%c", &rsa_n);
+    fscanf(fp, "%c", &rsa_d);
+    fclose(fp);
+
+    /* READ c from C */
+    if ((msg_size = read_msg(cs_fifo_fd,&buff)) < 0) {
+      fprintf(stderr, "Error while getting C from the client...\n");
+      goto next;
+    }
+
+    /* DECRYPT c using (s_prk,n) -> r' = c^s_prk mod n */
+    /* rsa_decrypt(rsa_d, buff, msg_size) */
+    /* SEND r' to C */
+    if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
+      fprintf(stderr, "Error while sending C to the client...\n");
+      goto next;
+    }
 
     /* Client authentication */
-    // READ client name nm of C
+    /* READ client name nm of C */
+    if ((msg_size = read_msg(cs_fifo_fd,&buff)) < 0) {
+      fprintf(stderr, "Error while getting the client name...\n");
+      goto next;
+    }
+
+    /* GET the public rsa keys of the possible clients associated to each name, (names[],c_puk[],n[]) from "client_folder/clients_rsa_public_keys.txt" */
+    /* EXTRACT from (names[],c_puk[],n[]) the pair (c_puk[i],n[i]) where names[i] = nm */
+    if ((fp = fopen("server_folder/clients_rsa_public_keys.txt", "r")) == NULL) {
+      fprintf(stderr, "Error while getting clients RSA public keys...\n");
+      goto next;
+    }
+    done = 0;
+    while (!feof(fp)) {
+      fscanf(fp, "%s %c %c", client_nm, &rsa_client_n, &rsa_client_e);
+      if (strcmp(client_nm, buff) == 0) {
+        done = 1;
+      }
+    }
+    if (done == 0) {
+      fprintf(stderr, "Error: unrecognized client\n");
+      goto next;
+    }
+    fclose(fp);
+
+    /* CREATE a pseudo-random message r */
     /* ... */
-    // GET the public rsa keys of the possible clients associated to each name, (names[],c_puk[],n[]) from "client_folder/clients_rsa_public_keys.txt"
+    /* ENCRYPT r using s_puk[i] -> c = r^s_puk[i] mod n[i] */
     /* ... */
-    // EXTRACT from (names[],c_puk[],n[]) the pair (c_puk[i],n[i]) where names[i] = nm
-    /* ... */
-    // CREATE a pseudo-random message r
-    /* ... */
-    // ENCRYPT r using s_puk[i] -> c = r^s_puk[i] mod n[i]
-    /* ... */
-    // WRITE c to C
+    /* WRITE c to C */
     /* ... */
 
     /* Negotiation of the cipher suite */
