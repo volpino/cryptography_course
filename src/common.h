@@ -10,10 +10,10 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MSG_SIZE_MAX		2048
-#define CONNECTION_STRING	"Hello!"
-#define CLOSE_CONNECTION_STRING	"Bye"
-#define OK_STRING		"OK"
+#define MSG_SIZE_MAX 2048
+#define CONNECTION_STRING "Hello!"
+#define CLOSE_CONNECTION_STRING "Bye"
+#define OK_STRING "OK"
 
 void print_buff(u_int8_t *, size_t);
 int open_channel(const char *);

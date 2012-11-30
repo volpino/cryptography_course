@@ -16,7 +16,7 @@
   (byte & 0x01 ? 1 : 0)
 
 void g8_print(uint8_t a) {
-    printf(G8_BYTETOBINARYPATTERN, G8_BYTETOBINARY(a));
+  printf(G8_BYTETOBINARYPATTERN, G8_BYTETOBINARY(a));
 }
 
 const int num_test = 10;

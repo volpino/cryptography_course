@@ -45,7 +45,6 @@ void b24_decrypt(b24_t m, const b24_t k) {
 
   key_schedule(k, rkeys);
 
-
   for (round=ROUND_NUM; round>0; round--) {
     b24_inc(m, rkeys[round]);
     mixing_layer_inv(m);
@@ -56,65 +55,65 @@ void b24_decrypt(b24_t m, const b24_t k) {
 }
 
 void encrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
-    int i;
+  int i;
 
-    b24_inc(m[0], iv);
-    b24_encrypt(m[0], k);
+  b24_inc(m[0], iv);
+  b24_encrypt(m[0], k);
 
-    for (i=1; i<n; i++) {
-        b24_inc(m[i], m[i-1]);
-        b24_encrypt(m[i], k);
-    }
+  for (i=1; i<n; i++) {
+    b24_inc(m[i], m[i-1]);
+    b24_encrypt(m[i], k);
+  }
 }
 
 void decrypt_cbc_internal(b24_t* m, int n, const b24_t k, const b24_t iv) {
-    int i;
+  int i;
 
-    for (i=n-1; i>0; i--) {
-        b24_decrypt(m[i], k);
-        b24_inc(m[i], m[i-1]);
-    }
+  for (i=n-1; i>0; i--) {
+    b24_decrypt(m[i], k);
+    b24_inc(m[i], m[i-1]);
+  }
 
-    b24_decrypt(m[0], k);
-    b24_inc(m[0], iv);
+  b24_decrypt(m[0], k);
+  b24_inc(m[0], iv);
 }
 
 /* n is the length of inp */
 void byte_to_b24(uint8_t* inp, int n, b24_t* out) {
-    int i;
-    uint32_t tmp, x1, x2, x3;
+  int i;
+  uint32_t tmp, x1, x2, x3;
 
-    for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
-        x1 = inp[i] << 24;
-        x2 = i+1 < n ? (inp[i+1] << 16) : 0;
-        x3 = i+2 < n ? (inp[i+2] << 8) : 0;
+  for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
+    x1 = inp[i] << 24;
+    x2 = i+1 < n ? (inp[i+1] << 16) : 0;
+    x3 = i+2 < n ? (inp[i+2] << 8) : 0;
 
-        tmp = x1 + x2 + x3;
-        out[i / 3][0] = (tmp & 0xFC000000) >> 26;
-        out[i / 3][1] = (tmp & 0x03F00000) >> 20;
-        out[i / 3][2] = (tmp & 0x000FC000) >> 14;
-        out[i / 3][3] = (tmp & 0x00003F00) >> 8;
-    }
+    tmp = x1 + x2 + x3;
+    out[i / 3][0] = (tmp & 0xFC000000) >> 26;
+    out[i / 3][1] = (tmp & 0x03F00000) >> 20;
+    out[i / 3][2] = (tmp & 0x000FC000) >> 14;
+    out[i / 3][3] = (tmp & 0x00003F00) >> 8;
+  }
 }
 
 /* Note: This functions assumes that n is a multiple of 3
  * the output is always padded
  */
 void b24_to_byte(b24_t* inp, uint8_t* out, int n) {
-    int i;
-    uint32_t tmp, x1, x2, x3, x4;
+  int i;
+  uint32_t tmp, x1, x2, x3, x4;
 
-    for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
-        x1 = inp[i / 3][0] << 26;
-        x2 = inp[i / 3][1] << 20;
-        x3 = inp[i / 3][2] << 14;
-        x4 = inp[i / 3][3] << 8;
+  for (i=0; i<(n + (n % 3 == 0 ? 0 : 1)); i+=3) {
+    x1 = inp[i / 3][0] << 26;
+    x2 = inp[i / 3][1] << 20;
+    x3 = inp[i / 3][2] << 14;
+    x4 = inp[i / 3][3] << 8;
 
-        tmp = x1 + x2 + x3 + x4;
-        out[i] = (tmp & 0xFF000000) >> 24;
-        /*if (i+1 < n)*/ out[i+1] = (tmp & 0x00FF0000) >> 16;
-        /*if (i+2 < n)*/ out[i+2] = (tmp & 0x0000FF00) >> 8;
-    }
+    tmp = x1 + x2 + x3 + x4;
+    out[i] = (tmp & 0xFF000000) >> 24;
+    /*if (i+1 < n)*/ out[i+1] = (tmp & 0x00FF0000) >> 16;
+    /*if (i+2 < n)*/ out[i+2] = (tmp & 0x0000FF00) >> 8;
+  }
 }
 
 
@@ -127,22 +126,22 @@ void b24_to_byte(b24_t* inp, uint8_t* out, int n) {
  * Note: encryption is performed in-place
  */
 void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
-    int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
-    b24_t k_arr;
-    b24_t iv_arr;
+  int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
+  b24_t k_arr;
+  b24_t iv_arr;
 
-    b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
-    byte_to_b24(m, n, m_arr);
+  b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
+  byte_to_b24(m, n, m_arr);
 
-    byte_to_b24(k, 3, &k_arr);
+  byte_to_b24(k, 3, &k_arr);
 
-    byte_to_b24(iv, 3, &iv_arr);
+  byte_to_b24(iv, 3, &iv_arr);
 
-    encrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
+  encrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
 
-    b24_to_byte(m_arr, m, n);
+  b24_to_byte(m_arr, m, n);
 
-    free(m_arr);
+  free(m_arr);
 }
 
 
@@ -155,20 +154,20 @@ void bunny24_encrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
  * Note: encryption is performed in-place
  */
 void bunny24_decrypt_cbc(uint8_t* m, int n, uint8_t* k, uint8_t* iv) {
-    int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
-    b24_t k_arr;
-    b24_t iv_arr;
+  int len_m_arr = n % 3 == 0 ? n / 3 : n / 3 + 1;
+  b24_t k_arr;
+  b24_t iv_arr;
 
-    b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
-    byte_to_b24(m, n, m_arr);
+  b24_t* m_arr = (b24_t*) malloc(len_m_arr * sizeof(b24_t));
+  byte_to_b24(m, n, m_arr);
 
-    byte_to_b24(k, 3, &k_arr);
+  byte_to_b24(k, 3, &k_arr);
 
-    byte_to_b24(iv, 3, &iv_arr);
+  byte_to_b24(iv, 3, &iv_arr);
 
-    decrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
+  decrypt_cbc_internal(m_arr, len_m_arr, k_arr, iv_arr);
 
-    b24_to_byte(m_arr, m, n);
+  b24_to_byte(m_arr, m, n);
 
-    free(m_arr);
+  free(m_arr);
 }

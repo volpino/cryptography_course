@@ -1,63 +1,60 @@
 #include "common.h"
 
-int open_fifo(const char * pathname)
-{
-	/* Recreate the FIFO in pathname */
-	unlink(pathname);
-	if( mkfifo(pathname,0600) < 0 ) {
-		perror("mkfifo()");
-		exit(1);
-	}
+int open_fifo(const char * pathname) {
+  /* Recreate the FIFO in pathname */
+  unlink(pathname);
+  if (mkfifo(pathname,0600) < 0) {
+    perror("mkfifo()");
+    exit(1);
+  }
 
-	/* Open the channel */
-	return (open_channel(pathname));
+  /* Open the channel */
+  return (open_channel(pathname));
 }
 
-int wait_connection(int channel_fd)
-{
-	ssize_t msg_size;
-	u_int8_t * buff;
+int wait_connection(int channel_fd) {
+  ssize_t msg_size;
+  u_int8_t * buff;
 
-	/* Wait a connection from the client */
-	if( 	((msg_size = read_msg(channel_fd,&buff)) < 0) ||
-		(msg_size != strlen(CONNECTION_STRING) ||
-		strncasecmp((const char *)CONNECTION_STRING,(const char *)buff,msg_size)) ) {
-		/* Protocol error */
-		return (-1);
-	}
+  /* Wait a connection from the client */
+  if (((msg_size = read_msg(channel_fd,&buff)) < 0) ||
+      (msg_size != strlen(CONNECTION_STRING) ||
+      strncasecmp((const char *)CONNECTION_STRING,(const char *)buff,msg_size))) {
+    /* Protocol error */
+    return (-1);
+  }
 
-	return (0);
+  return (0);
 }
 
-int main(int argc, char ** argv)
-{
-	int sc_fifo_fd, cs_fifo_fd;
+int main(int argc, char ** argv) {
+  int sc_fifo_fd, cs_fifo_fd;
 
-	/* Mandatory arguments */
-	if( !argv[1] || !argv[2] || !argv[3] ) {
-		fprintf(stderr,"server [server->client fifo] [client->server fifo] [password file]\n");
-		exit(1);
-	}
+  /* Mandatory arguments */
+  if (!argv[1] || !argv[2] || !argv[3]) {
+    fprintf(stderr,"server [server->client fifo] [client->server fifo] [password file]\n");
+    exit(1);
+  }
 
-	/* Main loop */
-	do {
-		/* Open the server->client fifo */
-		fprintf(stderr,"Opening server->client fifo...\n");
-		sc_fifo_fd = open_fifo(argv[1]);
+  /* Main loop */
+  do {
+    /* Open the server->client fifo */
+    fprintf(stderr,"Opening server->client fifo...\n");
+    sc_fifo_fd = open_fifo(argv[1]);
 
-		/* Open the client->server fifo */
-		fprintf(stderr,"Opening client->server fifo...\n");
-		cs_fifo_fd = open_fifo(argv[2]);
+    /* Open the client->server fifo */
+    fprintf(stderr,"Opening client->server fifo...\n");
+    cs_fifo_fd = open_fifo(argv[2]);
 
-		/* Wait for a connection */
-		fprintf(stderr,"Waiting connection...\n");
-		if( wait_connection(cs_fifo_fd) < 0 ) {
-			fprintf(stderr,"Communication error...\n");
-			goto next;
-		}
+    /* Wait for a connection */
+    fprintf(stderr,"Waiting connection...\n");
+    if (wait_connection(cs_fifo_fd) < 0) {
+      fprintf(stderr,"Communication error...\n");
+      goto next;
+    }
 
-		/* Write OK */
-		write_OK(sc_fifo_fd);
+    /* Write OK */
+    write_OK(sc_fifo_fd);
 
     /* Server authentication */
 
@@ -96,16 +93,16 @@ int main(int argc, char ** argv)
     /* Disconnection */
     /* ... */
 
-next:
-		/* Close current connection */
-		fprintf(stderr,"Closing connection...\n");
-		write_BYE(sc_fifo_fd);
-		close_channel(sc_fifo_fd);
-		close_channel(cs_fifo_fd);
-	} while(1);
+  next:
+    /* Close current connection */
+    fprintf(stderr,"Closing connection...\n");
+    write_BYE(sc_fifo_fd);
+    close_channel(sc_fifo_fd);
+    close_channel(cs_fifo_fd);
+  } while(1);
 
-	close_channel(sc_fifo_fd);
-	close_channel(cs_fifo_fd);
+  close_channel(sc_fifo_fd);
+  close_channel(cs_fifo_fd);
 
-	exit(0);
+  exit(0);
 }
