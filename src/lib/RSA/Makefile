@@ -2,7 +2,7 @@ include ../../Makefile.inc
 
 LIB=../librsa.a
 
-SOURCES=rsa.c prime.c
+SOURCES=rsa.c prime.c constants.c
 OBJS=$(SOURCES:.c=.o)
 
 TEST=rsa_test
@@ -16,7 +16,7 @@ $(LIB): $(OBJS)
 	$(RANLIB) $@
 
 $(TEST): $(OBJS) test.c
-	$(CC) $(CFLAGS) $^ -o $@ -L .. -lrsa -lbunny24_prng -lbunny24 -lfield
+	$(CC) $(CFLAGS) $^ -o $@ -L .. -lrsa -lbunny24_prng -lbunny24 -lfield -lcrypto
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@

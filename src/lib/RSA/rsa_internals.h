@@ -9,4 +9,7 @@
 
 extern const int primes[N_PRIMES];
 
+void rsa_encrypt(BIGNUM* m, const BIGNUM* e, const BIGNUM* n);
+void rsa_decrypt(BIGNUM* m, const BIGNUM* e, const BIGNUM* n);
+
 #endif
