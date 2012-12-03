@@ -2,11 +2,9 @@
 #include <stdio.h>
 
 //#define N_BIT 2097152
-#define N 16777216
-
+#define N 16777216*3
 uint8_t out[N];
 int hash[N];
-
 
 int bytes_to_int(uint8_t* bytes) {
   int i;
@@ -26,14 +24,14 @@ int main() {
     hash[i] = -1;
   }
 
-  printf("It is working, or is it!\n");
   bunny24_prng(seed, 3, out, N);
 
   for (i=0; i<N; i+=3) {
     int tmp = bytes_to_int(&out[i]);
     if (hash[tmp] != -1) {
-      printf("DLF hash[tmp]=%d\n", hash[tmp]);
-      printf("DLF i=%d\n", i);
+      printf("Loop!\nPrevious was at %d\n", hash[tmp]);
+      printf("Current %d\n", i);
+      return 0;
     }
     else {
       hash[tmp] = i;
