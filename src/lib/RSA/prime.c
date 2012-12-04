@@ -19,7 +19,7 @@ BIGNUM* generate_random_prime() {
 
   /* while a suitable prime is not found */
   while (!done) {
-    /* pick a random q with first and last bits as 1*/
+    /* pick a random q with first and last bits as 1, 511 bits */
 
     // WRITEME
 

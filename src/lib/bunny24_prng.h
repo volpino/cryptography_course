@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void bunny24_prng(const uint8_t* seed, int n, uint8_t* out, int m);
+void bunny24_prng(const uint8_t* seed, int n, const uint8_t* iv, uint8_t* out, int m);
 
 #endif

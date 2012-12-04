@@ -6,7 +6,6 @@
 void test_key_schedule() {
   b24_t key;
   b24_t rkeys[16];
-  int i;
 
   /* key = (1 0 0 1 0 0 | 0 1 1 0 1 1 | 1 0 1 0 0 1 | 1 0 0 0 0 0) */
   key[0] = 0x24; key[1] = 0x1b; key[2] = 0x29; key[3] = 0x20;
@@ -18,7 +17,7 @@ void test_conversion() {
   uint8_t t[] = {0x51, 0x4E, 0x55, 0x51, 0x4E, 0x55};
   b24_t a[2];
   byte_to_b24(t, 6, a);
-  b24_to_byte(a, t, 6);
+  b24_to_byte((const b24_t*) a, t, 6);
 
   assert(t[0] == 0x51);
   assert(t[1] == 0x4E);
@@ -28,7 +27,7 @@ void test_conversion() {
   assert(t[5] == 0x55);
 
   byte_to_b24(t, 4, a);
-  b24_to_byte(a, t, 4);
+  b24_to_byte((const b24_t*) a, t, 4);
 
   assert(t[0] == 0x51);
   assert(t[1] == 0x4E);

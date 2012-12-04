@@ -24,7 +24,7 @@ int main() {
     hash[i] = -1;
   }
 
-  bunny24_prng(seed, 3, out, N);
+  bunny24_prng(seed, 3, NULL, out, N);
 
   for (i=0; i<N; i+=3) {
     int tmp = bytes_to_int(&out[i]);
