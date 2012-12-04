@@ -11,8 +11,13 @@ int main() {
   BN_dec2bn(&d, d_s);
   BN_dec2bn(&m, m_s);
 
-  rsa_encrypt(m, d, n);
+  /*rsa_encrypt(m, d, n);
 
+  BN_print_fp(stdout, m);
+  printf("\n\n");*/
+
+  /* Try to generate a prime */
+  generate_random_prime(m);
   BN_print_fp(stdout, m);
   printf("\n");
 

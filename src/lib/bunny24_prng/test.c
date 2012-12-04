@@ -19,10 +19,32 @@ int bytes_to_int(uint8_t* bytes) {
 int main() {
   int i;
   uint8_t seed[3] = {0x01, 0x02, 0x03};
+  uint8_t seed_zero[3] = {0x00, 0x00, 0x00};
+  uint8_t iv[3];
 
   for (i=0; i<N; i++) {
     hash[i] = -1;
   }
+
+  bunny24_prng(seed, 3, NULL, out, 100);
+  for (i=0; i<100; i++) {
+    printf("%x ", out[i]);
+  }
+  printf("\n");
+
+  bunny24_prng(seed, 3, NULL, out, 30);
+  for (i=0; i<30; i++) {
+    printf("%x ", out[i]);
+  }
+  iv[0] = out[27];
+  iv[1] = out[28];
+  iv[2] = out[29];
+  bunny24_prng(seed_zero, 3, iv, out, 70);
+  for (i=0; i<70; i++) {
+    printf("%x ", out[i]);
+  }
+  printf("\n");
+
 
   bunny24_prng(seed, 3, NULL, out, N);
 
