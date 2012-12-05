@@ -1,4 +1,4 @@
-#include "rsa_internals.h"
+#include "../rsa.h"
 #include "../bunny24_prng.h"
 
 #define KEY_LENGTH 64  /* bytes */

@@ -13,6 +13,7 @@
 
 #include <openssl/bn.h>
 #include "lib/bunny24_prng.h"
+#include "lib/rsa.h"
 
 #define MSG_SIZE_MAX 2048
 #define CONNECTION_STRING "Hello!"

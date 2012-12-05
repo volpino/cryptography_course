@@ -1,4 +1,4 @@
-#include "rsa_internals.h"
+#include "../rsa.h"
 #include <assert.h>
 
 /*
