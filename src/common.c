@@ -165,3 +165,50 @@ void cipher_suite_table(char suite_id, uint8_t *symm_cipher,
     assert(0);
   }
 }
+
+void decrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k) {
+  uint8_t iv[] = {0x42, 0x42, 0x42};
+  uint8_t *out = (uint8_t *) malloc(c_len * sizeof(uint8_t));
+  int i;
+
+  if (cipher_id == 1) {
+    bunny24_decrypt_cbc(c, c_len, k, iv);
+  }
+  else if (cipher_id == 2 || cipher_id == 3) {
+    if (cipher_id == 2) {
+      all5(k, out, c_len*8);
+    }
+    else {
+      maj5(k, out, c_len*8);
+    }
+    for (i=0; i<c_len; i++) {
+      c[i] ^= out[i];
+    }
+  }
+
+  free(out);
+}
+
+
+void encrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k) {
+  uint8_t iv[] = {0x42, 0x42, 0x42};
+  uint8_t *out = (uint8_t *) malloc(c_len * sizeof(uint8_t));
+  int i;
+
+  if (cipher_id == 1) {
+    bunny24_encrypt_cbc(c, c_len, k, iv);
+  }
+  else if (cipher_id == 2 || cipher_id == 3) {
+    if (cipher_id == 2) {
+      all5(k, out, c_len*8);
+    }
+    else {
+      maj5(k, out, c_len*8);
+    }
+    for (i=0; i<c_len; i++) {
+      c[i] ^= out[i];
+    }
+  }
+
+  free(out);
+}
