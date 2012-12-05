@@ -1,4 +1,5 @@
 #include "common.h"
+#include <assert.h>
 
 void print_buff(u_int8_t * buff, size_t buff_size) {
   int i = 0, j;
@@ -60,7 +61,8 @@ void close_channel(int channel_fd) {
 ssize_t read_msg(int channel_fd, u_int8_t ** msg) {
   ssize_t read_len;
   u_int16_t msg_size;
-  static u_int8_t msg_buff[MSG_SIZE_MAX];
+  static u_int8_t msg_buff[MSG_SIZE_MAX + 1];
+  /* +1 in case someone wants to append '\0' */
 
   /* The first 16 bits represents the message size */
   if (read(channel_fd,(void *)&msg_size,sizeof(msg_size)) < 0) {
@@ -126,3 +128,40 @@ int read_string(int channel_fd, const char * str) {
   return (0);
 }
 
+void cipher_suite_table(char suite_id, uint8_t *symm_cipher,
+                        uint8_t *hash, uint8_t* asymm_cipher) {
+  switch (suite_id) {
+  case 'A':
+    *symm_cipher = 1;
+    *hash = 4;
+    *asymm_cipher = 5;
+    break;
+  case 'B':
+    *symm_cipher = 1;
+    *hash = 4;
+    *asymm_cipher = 6;
+    break;
+  case 'C':
+    *symm_cipher = 2;
+    *hash = 4;
+    *asymm_cipher = 5;
+    break;
+  case 'D':
+    *symm_cipher = 2;
+    *hash = 4;
+    *asymm_cipher = 6;
+    break;
+  case 'E':
+    *symm_cipher = 3;
+    *hash = 4;
+    *asymm_cipher = 5;
+    break;
+  case 'F':
+    *symm_cipher = 3;
+    *hash = 4;
+    *asymm_cipher = 6;
+    break;
+  default:
+    assert(0);
+  }
+}

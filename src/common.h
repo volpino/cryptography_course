@@ -33,4 +33,7 @@ int read_string(int, const char *);
 int write_OK(int);
 int write_BYE(int);
 
+void cipher_suite_table(char suite_id, uint8_t *symm_cipher,
+                        uint8_t *hash, uint8_t* asymm_cipher);
+
 #endif
