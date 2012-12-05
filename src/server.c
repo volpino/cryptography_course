@@ -30,11 +30,23 @@ int wait_connection(int channel_fd) {
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
   int done;
+  int i;
   char client_nm[256];
-  uint8_t rsa_n, rsa_e, rsa_d, rsa_client_e, rsa_client_n;
+  uint8_t rsa_tmp[RSA_LENGTH], rsa_tmp2[RSA_LENGTH];
   ssize_t msg_size;
-  u_int8_t * buff;
+  uint8_t * buff;
+  uint8_t r[R_SIZE];
+  uint8_t seed[SEED_SIZE];
   FILE *fp;
+
+  BIGNUM *bn_n, *bn_e, *bn_d, *bn_client_e, *bn_client_n, *bn_r;
+
+  bn_n = BN_new();
+  bn_e = BN_new();
+  bn_d = BN_new();
+  bn_client_e = BN_new();
+  bn_client_n = BN_new();
+  bn_r = BN_new();
 
   /* Mandatory arguments */
   if (!argv[1] || !argv[2] || !argv[3]) {
@@ -69,8 +81,10 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting server RSA private key...\n");
       goto next;
     }
-    fscanf(fp, "%c", &rsa_n);
-    fscanf(fp, "%c", &rsa_d);
+    fscanf(fp, "%64s\n", rsa_tmp);
+    BN_hex2bn(&bn_n, rsa_tmp);
+    fscanf(fp, "%64s\n", rsa_tmp);
+    BN_hex2bn(&bn_d, rsa_tmp);
     fclose(fp);
 
     /* READ c from C */
@@ -80,7 +94,8 @@ int main(int argc, char ** argv) {
     }
 
     /* DECRYPT c using (s_prk,n) -> r' = c^s_prk mod n */
-    /* rsa_decrypt(rsa_d, buff, msg_size) */
+    /*rsa_decrypt(bn_d, buff, msg_size);*/
+
     /* SEND r' to C */
     if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
       fprintf(stderr, "Error while sending C to the client...\n");
@@ -102,7 +117,7 @@ int main(int argc, char ** argv) {
     }
     done = 0;
     while (!feof(fp)) {
-      fscanf(fp, "%s %c %c", client_nm, &rsa_client_n, &rsa_client_e);
+      fscanf(fp, "%64s %64s %64s", client_nm, rsa_tmp, rsa_tmp2);
       if (strcmp(client_nm, buff) == 0) {
         done = 1;
       }
@@ -113,10 +128,19 @@ int main(int argc, char ** argv) {
     }
     fclose(fp);
 
+    BN_hex2bn(&bn_client_n, rsa_tmp);
+    BN_hex2bn(&bn_client_e, rsa_tmp2);
+
     /* CREATE a pseudo-random message r */
-    /* ... */
+    fp = fopen("/dev/random", "r");
+    for (i=0; i<SEED_SIZE; i++) {
+      fscanf(fp, "%c", &(seed[i]));
+    }
+    bunny24_prng(seed, SEED_SIZE, NULL, r, R_SIZE);
+
     /* ENCRYPT r using s_puk[i] -> c = r^s_puk[i] mod n[i] */
-    /* ... */
+
+
     /* WRITE c to C */
     /* ... */
 
@@ -142,6 +166,13 @@ int main(int argc, char ** argv) {
 
   close_channel(sc_fifo_fd);
   close_channel(cs_fifo_fd);
+
+  BN_free(bn_n);
+  BN_free(bn_e);
+  BN_free(bn_d);
+  BN_free(bn_client_n);
+  BN_free(bn_client_e);
+  BN_free(bn_r);
 
   exit(0);
 }
