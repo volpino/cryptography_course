@@ -42,7 +42,7 @@ int write_BYE(int);
 void cipher_suite_table(char suite_id, uint8_t *symm_cipher,
                         uint8_t *hash, uint8_t* asymm_cipher);
 
-void decrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k);
-void encrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k);
+void decrypt(uint8_t cipher_id, uint8_t *c, int c_len, uint8_t *k);
+void encrypt(uint8_t cipher_id, uint8_t *c, int c_len, uint8_t *k);
 
 #endif

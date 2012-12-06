@@ -26,14 +26,14 @@ void sponge_hash_internal(b24_t* m, int len_m, b24_t key, uint8_t* out) {
   for (i=0; i<4; i++) {
     k = i * 5;
 
-    b24_to_byte(&state, state_byte, 3);
+    b24_to_byte((const b24_t*) &state, state_byte, 3);
 
     out[k] = state_byte[0];
     out[k+1] = state_byte[1];
     out[k+2] = (state_byte[2] & 0xf0);
 
     b24_encrypt(state, key);
-    b24_to_byte(&state, state_byte, 3);
+    b24_to_byte((const b24_t*) &state, state_byte, 3);
 
     out[k+2] = out[k+2] ^ (state_byte[0] >> 4);
 

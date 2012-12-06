@@ -131,42 +131,42 @@ int read_string(int channel_fd, const char * str) {
 void cipher_suite_table(char suite_id, uint8_t *symm_cipher,
                         uint8_t *hash, uint8_t* asymm_cipher) {
   switch (suite_id) {
-  case 'A':
-    *symm_cipher = 1;
-    *hash = 4;
-    *asymm_cipher = 5;
-    break;
-  case 'B':
-    *symm_cipher = 1;
-    *hash = 4;
-    *asymm_cipher = 6;
-    break;
-  case 'C':
-    *symm_cipher = 2;
-    *hash = 4;
-    *asymm_cipher = 5;
-    break;
-  case 'D':
-    *symm_cipher = 2;
-    *hash = 4;
-    *asymm_cipher = 6;
-    break;
-  case 'E':
-    *symm_cipher = 3;
-    *hash = 4;
-    *asymm_cipher = 5;
-    break;
-  case 'F':
-    *symm_cipher = 3;
-    *hash = 4;
-    *asymm_cipher = 6;
-    break;
-  default:
-    assert(0);
+    case 'A':
+      *symm_cipher = 1;
+      *hash = 4;
+      *asymm_cipher = 5;
+      break;
+    case 'B':
+      *symm_cipher = 1;
+      *hash = 4;
+      *asymm_cipher = 6;
+      break;
+    case 'C':
+      *symm_cipher = 2;
+      *hash = 4;
+      *asymm_cipher = 5;
+      break;
+    case 'D':
+      *symm_cipher = 2;
+      *hash = 4;
+      *asymm_cipher = 6;
+      break;
+    case 'E':
+      *symm_cipher = 3;
+      *hash = 4;
+      *asymm_cipher = 5;
+      break;
+    case 'F':
+      *symm_cipher = 3;
+      *hash = 4;
+      *asymm_cipher = 6;
+      break;
+    default:
+      assert(0);
   }
 }
 
-void decrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k) {
+void decrypt(uint8_t cipher_id, uint8_t *c, int c_len, uint8_t *k) {
   uint8_t iv[] = {0x42, 0x42, 0x42};
   uint8_t *out = (uint8_t *) malloc(c_len * sizeof(uint8_t));
   int i;
@@ -190,7 +190,7 @@ void decrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k) {
 }
 
 
-void encrypt(int cipher_id, uint8_t *c, int c_len, uint8_t *k) {
+void encrypt(uint8_t cipher_id, uint8_t *c, int c_len, uint8_t *k) {
   uint8_t iv[] = {0x42, 0x42, 0x42};
   uint8_t *out = (uint8_t *) malloc(c_len * sizeof(uint8_t));
   int i;
