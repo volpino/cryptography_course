@@ -2,10 +2,11 @@
 
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
+  int i;
   FILE *fp;
   uint8_t rsa_tmp[RSA_LENGTH];
   ssize_t msg_size;
-  char * buff;
+  uint8_t * buff;
   char * client_name;
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
@@ -18,6 +19,10 @@ int main(int argc, char ** argv) {
     *r,   /* random number */
     *rc;  /* encrypted r */
 
+  rsa_n = BN_new();
+  rsa_d = BN_new();
+  rsa_server_n = BN_new();
+  rsa_server_e = BN_new();
   r = BN_new();
   rc = BN_new();
 
@@ -41,10 +46,9 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-
   /* Server authentication */
-  /* GET public rsa key of S, (s_puk,n), from "client_folder/server_rsa_public_key.txt" */
-  if ((fp = fopen("client_folder/server_rsa_public_key.txt", "r")) == NULL) {
+  /* GET public rsa key of S, (s_puk,n), from "client_folder/server_rsa64_public_key.txt" */
+  if ((fp = fopen("client_folder/server_rsa64_public_key.txt", "r")) == NULL) {
     fprintf(stderr, "Error while getting server RSA public key...\n");
     goto next;
   }
@@ -90,7 +94,6 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-
   /* Client authentication */
   /* SEND client_name to S */
   msg_size = strlen(client_name);
@@ -99,15 +102,15 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-  /* GET private rsa key of C, (s_prk,n) from "client_folder/client_rsa_private_key.txt" */
-  if ((fp = fopen("client_folder/client_rsa_private_key.txt", "r")) == NULL) {
+  /* GET private rsa key of C, (s_prk,n) from "client_folder/client_rsa64_private_key.txt" */
+  if ((fp = fopen("client_folder/client_rsa64_private_key.txt", "r")) == NULL) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
   }
   fscanf(fp, "%64s\n", rsa_tmp);
-  BN_hex2bn(&n, rsa_tmp);
+  BN_hex2bn(&rsa_n, rsa_tmp);
   fscanf(fp, "%64s\n", rsa_tmp);
-  BN_hex2bn(&d, rsa_tmp);
+  BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);
 
   /* READ c from S */
@@ -119,7 +122,7 @@ int main(int argc, char ** argv) {
   BN_hex2bn(&rc, buff);
 
   /* DECRYPT c using (c_prk,n) -> r' = c^c_prk mod n */
-  rsa_decrypt(rc, d, n);
+  rsa_decrypt(rc, rsa_d, rsa_n);
 
   /* WRITE r' to S */
   buff = BN_bn2hex(rc);
@@ -130,10 +133,9 @@ int main(int argc, char ** argv) {
   }
   OPENSSL_free(buff);
 
-
   /* Negotiation of the cipher suite */
   /* GET my cipher suite from file */
-  if ((fp = fopen("client_folder/lient_cipher_suite.txt", "r")) == NULL) {
+  if ((fp = fopen("client_folder/client_cipher_suite.txt", "r")) == NULL) {
     fprintf(stderr, "Error while reading my cipher suite...\n");
   }
   fscanf(fp, "%c", &ciphersuite);
@@ -147,7 +149,7 @@ int main(int argc, char ** argv) {
   }
 
   /* Negotiation of the private key */
-  
+  /* ... */
 
   /* Encrypt communication */
   /* ... */
@@ -169,6 +171,10 @@ int main(int argc, char ** argv) {
   close_channel(cs_fifo_fd);
   close_channel(sc_fifo_fd);
 
+  BN_free(rsa_n);
+  BN_free(rsa_d);
+  BN_free(rsa_server_n);
+  BN_free(rsa_server_e);
   BN_free(r);
   BN_free(rc);
 
