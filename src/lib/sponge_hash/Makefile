@@ -1,6 +1,6 @@
 include ../../Makefile.inc
 
-LIB=../libspongehash.a
+LIB=../libsponge_hash.a
 
 SOURCES=hash.c
 OBJS=$(SOURCES:.c=.o)

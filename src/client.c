@@ -6,7 +6,7 @@ int main(int argc, char ** argv) {
   FILE *fp;
   uint8_t rsa_tmp[RSA_LENGTH];
   ssize_t msg_size;
-  char * buff;
+  uint8_t * buff;
   char * client_name;
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
@@ -21,6 +21,10 @@ int main(int argc, char ** argv) {
     *rc,  /* encrypted r */
     *k;   /* symmetric key */
 
+  rsa_n = BN_new();
+  rsa_d = BN_new();
+  rsa_server_n = BN_new();
+  rsa_server_e = BN_new();
   r = BN_new();
   rc = BN_new();
   rsa_n = BN_new();
@@ -49,10 +53,9 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-
   /* Server authentication */
-  /* GET public rsa key of S, (s_puk,n), from "client_folder/server_rsa_public_key.txt" */
-  if ((fp = fopen("client_folder/server_rsa_public_key.txt", "r")) == NULL) {
+  /* GET public rsa key of S, (s_puk,n), from "client_folder/server_rsa64_public_key.txt" */
+  if ((fp = fopen("client_folder/server_rsa64_public_key.txt", "r")) == NULL) {
     fprintf(stderr, "Error while getting server RSA public key...\n");
     goto next;
   }
@@ -98,7 +101,6 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-
   /* Client authentication */
   /* SEND client_name to S */
   msg_size = strlen(client_name);
@@ -138,10 +140,9 @@ int main(int argc, char ** argv) {
   }
   OPENSSL_free(buff);
 
-
   /* Negotiation of the cipher suite */
   /* GET my cipher suite from file */
-  if ((fp = fopen("client_folder/lient_cipher_suite.txt", "r")) == NULL) {
+  if ((fp = fopen("client_folder/client_cipher_suite.txt", "r")) == NULL) {
     fprintf(stderr, "Error while reading my cipher suite...\n");
   }
   fscanf(fp, "%c", &ciphersuite);
@@ -182,7 +183,7 @@ int main(int argc, char ** argv) {
   BN_bn2bin(k, k_bin);
 
   /* Encrypt communication */
-  
+  /* ... */
 
   /* Disconnection */
   /* ... */
@@ -201,6 +202,10 @@ int main(int argc, char ** argv) {
   close_channel(cs_fifo_fd);
   close_channel(sc_fifo_fd);
 
+  BN_free(rsa_n);
+  BN_free(rsa_d);
+  BN_free(rsa_server_n);
+  BN_free(rsa_server_e);
   BN_free(r);
   BN_free(rc);
   BN_free(rsa_n);

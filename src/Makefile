@@ -3,15 +3,15 @@ include Makefile.inc
 SERVER_OBJS=server.o common.o
 CLIENT_OBJS=client.o common.o
 
-LIB_DIRS=field bunny24 bunny24_prng lfsr
+LIB_DIRS=field bunny24 bunny24_prng lfsr A5_1 RSA sponge_hash
 
 all: libs server client
 
 client: $(CLIENT_OBJS)
-	$(CC) $(CLIENT_OBJS) -o $@
+	$(CC) $(CLIENT_OBJS) -o $@ -L lib -lcrypto -lrsa -lbunny24_prng -lsponge_hash -lbunny24 -lfield -lstream -llfsr
 
 server: $(SERVER_OBJS)
-	$(CC) $(SERVER_OBJS) -o $@
+	$(CC) $(SERVER_OBJS) -o $@ -L lib -lcrypto -lrsa -lbunny24_prng -lsponge_hash -lbunny24 -lfield -lstream -llfsr
 
 libs:
 	for d in $(LIB_DIRS); do (cd lib/$$d; $(MAKE) $(MFLAGS) ); done

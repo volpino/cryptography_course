@@ -31,21 +31,21 @@ int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
   int done;
   int i;
-  char client_nm[256];
+  char client_nm[256], cipher_tmp, client_cipher_suite;
   uint8_t rsa_tmp[RSA_LENGTH], rsa_tmp2[RSA_LENGTH];
   ssize_t msg_size;
   uint8_t *buff;
   uint8_t r[R_SIZE];
   uint8_t seed[SEED_SIZE];
   uint8_t k[K_SIZE];
-  int block_id, hash_id, public_id, c_block_id, c_hash_id, c_public_id;
+  uint8_t g[HASH_LENGTH], g1[HASH_LENGTH];
+  uint8_t sym_id, hash_id, public_id;
   int k_len;
   FILE *fp;
 
-  BIGNUM *bn_n, *bn_e, *bn_d, *bn_client_e, *bn_client_n, *bn_r, *bn_r1;
+  BIGNUM *bn_n, *bn_d, *bn_client_e, *bn_client_n, *bn_r, *bn_r1;
 
   bn_n = BN_new();
-  bn_e = BN_new();
   bn_d = BN_new();
   bn_client_e = BN_new();
   bn_client_n = BN_new();
@@ -80,8 +80,8 @@ int main(int argc, char ** argv) {
 
     /* Server authentication */
 
-    /* GET private rsa key of S, (s_prk,n) from "server_folder/server_rsa_private_key.txt" */
-    if ((fp = fopen("server_folder/server_rsa_private_key.txt", "r")) == NULL) {
+    /* GET private rsa key of S, (s_prk,n) from "server_folder/server64_rsa_private_key.txt" */
+    if ((fp = fopen("server_folder/server_rsa64_private_key.txt", "r")) == NULL) {
       fprintf(stderr, "Error while getting server RSA private key...\n");
       goto next;
     }
@@ -182,7 +182,9 @@ int main(int argc, char ** argv) {
       goto next;
     }
     buff[msg_size] = '\0';
-    sscanf(buff, "%d %d %d", &c_block_id, &c_hash_id, &c_public_id);
+    /* get c_sym_id, c_hash_id, c_public_id from buff[0] */
+    client_cipher_suite = buff[0];
+    cipher_suite_table(client_cipher_suite, &sym_id, &hash_id, &public_id);
 
     /* Search for the cipher suite in the file */
     if ((fp = fopen("server_folder/server_cipher_suite_list.txt", "r")) == NULL) {
@@ -191,9 +193,8 @@ int main(int argc, char ** argv) {
     }
     done = 0;
     while (!feof(fp)) {
-      fscanf(fp, "%d %d %d", &block_id, &hash_id, &public_id);
-      if (c_block_id == block_id && c_hash_id == hash_id &&
-          c_public_id == public_id) {
+      fscanf(fp, "%c", &cipher_tmp);
+      if (client_cipher_suite == cipher_tmp) {
         done = 1;
         break;
       }
@@ -213,7 +214,7 @@ int main(int argc, char ** argv) {
     }
     fclose(fp);
     bunny24_prng(seed, SEED_SIZE, NULL, k, K_SIZE);
-    if (block_id == 1) {
+    if (sym_id == 1) {
       k_len = 3;
     }
     else {
@@ -241,11 +242,12 @@ int main(int argc, char ** argv) {
     /* XXX: HOW TO GET C, G?*/
 
     /* Decrypt C */
-    decrypt(block_id, c, c_len, k);
+    decrypt(sym_id, c, c_len, k);
 
-    /* CHECK H(M') = G */
+    /* COMPUTE G' = H(M) */
     sponge_hash(c, c_len, g1);
 
+    /* CHECK G' = G */
     done = 1;
     for (i=0; i<HASH_LENGTH; i++) {
       if (g[i] != g1[i]) {
@@ -262,6 +264,7 @@ int main(int argc, char ** argv) {
     }
 
     /* PUT M' on a file */
+    /* XXX: Which is the file to save? */
     if (fopen("server_message", "w") == NULL) {
         fprintf(stderr, "Error while saving message...\n");
         fclose(fp);
@@ -289,7 +292,6 @@ int main(int argc, char ** argv) {
   close_channel(cs_fifo_fd);
 
   BN_free(bn_n);
-  BN_free(bn_e);
   BN_free(bn_d);
   BN_free(bn_client_n);
   BN_free(bn_client_e);
