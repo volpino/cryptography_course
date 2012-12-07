@@ -34,7 +34,7 @@ int main(int argc, char ** argv) {
   char client_nm[NM_LENGTH], client_nm_tmp[NM_LENGTH], cipher_tmp, client_cipher_suite;
   uint8_t rsa_tmp[RSA_LENGTH], rsa_tmp2[RSA_LENGTH];
   ssize_t msg_size;
-  uint8_t *buff, *c_hex, *g_hex;
+  uint8_t *buff;
   char * tmp;
   uint8_t c[MSG_SIZE_MAX];
   uint8_t r[R_SIZE_3];
@@ -286,12 +286,12 @@ int main(int argc, char ** argv) {
     c_len = c_hex_len / 2;
     for (i=0; i<msg_size; i+=2) {
       if (i < c_hex_len) {
-        tmp = buff + i + 2;
-        c[i] = (uint8_t) strtoul(buff+i, &tmp, 16);
+        tmp = (char *) buff + i + 2;
+        c[i] = (uint8_t) strtoul((char *) buff+i, &tmp, 16);
       }
       else {
-        tmp = buff + i + 2;
-        g[i - c_hex_len] = (uint8_t) strtoul(buff+i, &tmp, 16);
+        tmp = (char *) buff + i + 2;
+        g[i - c_hex_len] = (uint8_t) strtoul((char *) buff+i, &tmp, 16);
       }
     }
 
