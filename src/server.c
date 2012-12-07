@@ -30,15 +30,15 @@ int wait_connection(int channel_fd) {
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
   int done;
-  int i;
-  char client_nm[256], cipher_tmp, client_cipher_suite;
+  int i, c_len;
+  char client_nm[NM_LENGTH], client_nm_tmp[NM_LENGTH], cipher_tmp, client_cipher_suite;
   uint8_t rsa_tmp[RSA_LENGTH], rsa_tmp2[RSA_LENGTH];
   ssize_t msg_size;
-  uint8_t *buff;
+  uint8_t *buff, *c, *g;
   uint8_t r[R_SIZE];
   uint8_t seed[SEED_SIZE];
   uint8_t k[K_SIZE];
-  uint8_t g[HASH_LENGTH], g1[HASH_LENGTH];
+  uint8_t g1[HASH_LENGTH];
   uint8_t sym_id, hash_id, public_id;
   int k_len;
   FILE *fp;
@@ -53,8 +53,8 @@ int main(int argc, char ** argv) {
   bn_r1 = BN_new();
 
   /* Mandatory arguments */
-  if (!argv[1] || !argv[2] || !argv[3]) {
-    fprintf(stderr,"server [server->client fifo] [client->server fifo] [password file]\n");
+  if (!argv[1] || !argv[2]) {
+    fprintf(stderr,"server [server->client fifo] [client->server fifo]\n");
     exit(1);
   }
 
@@ -86,9 +86,9 @@ int main(int argc, char ** argv) {
       goto next;
     }
     fscanf(fp, "%64s\n", rsa_tmp);
-    BN_hex2bn(&bn_n, rsa_tmp);
+    BN_hex2bn(&bn_n, (const char *) rsa_tmp);
     fscanf(fp, "%64s\n", rsa_tmp);
-    BN_hex2bn(&bn_d, rsa_tmp);
+    BN_hex2bn(&bn_d, (const char *) rsa_tmp);
     fclose(fp);
 
     /* READ c from C */
@@ -99,9 +99,9 @@ int main(int argc, char ** argv) {
 
     /* DECRYPT c using (s_prk,n) -> r' = c^s_prk mod n */
     buff[msg_size] = '\0';
-    BN_hex2bn(&bn_r, buff);
+    BN_hex2bn(&bn_r, (const char *) buff);
     rsa_decrypt(bn_r, bn_d, bn_n);
-    buff = BN_bn2hex(bn_r);
+    buff = (uint8_t *) BN_bn2hex(bn_r);
 
     /* SEND r' to C */
     if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
@@ -116,18 +116,21 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting the client name...\n");
       goto next;
     }
+    buff[msg_size] = '\0';
+    strncpy((char *)client_nm, (const char *) buff, NM_LENGTH);
 
     /* GET the public rsa keys of the possible clients associated to each name,
-     * (names[],c_puk[],n[]) from "client_folder/clients_rsa_public_keys.txt" */
+     * (names[],c_puk[],n[]) from "client_folder/clients_rsa64_public_keys.txt"
+     */
     /* EXTRACT from (names[],c_puk[],n[]) the pair (c_puk[i],n[i]) where names[i] = nm */
-    if ((fp = fopen("server_folder/clients_rsa_public_keys.txt", "r")) == NULL) {
+    if ((fp = fopen("server_folder/clients_rsa64_public_keys.txt", "r")) == NULL) {
       fprintf(stderr, "Error while getting clients RSA public keys...\n");
       goto next;
     }
     done = 0;
     while (!feof(fp)) {
-      fscanf(fp, "%64s %64s %64s", client_nm, rsa_tmp, rsa_tmp2);
-      if (strcmp(client_nm, buff) == 0) {
+      fscanf(fp, "%64s %64s %64s", client_nm_tmp, rsa_tmp, rsa_tmp2);
+      if (strcmp(client_nm_tmp, client_nm) == 0) {
         done = 1;
         break;
       }
@@ -138,8 +141,8 @@ int main(int argc, char ** argv) {
     }
     fclose(fp);
 
-    BN_hex2bn(&bn_client_n, rsa_tmp);
-    BN_hex2bn(&bn_client_e, rsa_tmp2);
+    BN_hex2bn(&bn_client_n, (const char *) rsa_tmp);
+    BN_hex2bn(&bn_client_e, (const char *) rsa_tmp2);
 
     /* CREATE a pseudo-random message r */
     fp = fopen("/dev/random", "r");
@@ -154,7 +157,7 @@ int main(int argc, char ** argv) {
     rsa_encrypt(bn_r, bn_client_e, bn_client_n);
 
     /* WRITE c to C */
-    buff = BN_bn2hex(bn_r);
+    buff = (uint8_t *) BN_bn2hex(bn_r);
     if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
       fprintf(stderr, "Error while sending C to the client...\n");
       goto next;
@@ -169,7 +172,7 @@ int main(int argc, char ** argv) {
 
     /* CHECK that r = r' */
     BN_bin2bn(r, R_SIZE, bn_r);
-    BN_hex2bn(&bn_r1, buff);
+    BN_hex2bn(&bn_r1, (const char *) buff);
     if (BN_cmp(bn_r, bn_r1) != 0) {
       fprintf(stderr, "Error, r and r' mismatch!\n");
       goto next;
@@ -181,7 +184,6 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "error while getting the list from the client...\n");
       goto next;
     }
-    buff[msg_size] = '\0';
     /* get c_sym_id, c_hash_id, c_public_id from buff[0] */
     client_cipher_suite = buff[0];
     cipher_suite_table(client_cipher_suite, &sym_id, &hash_id, &public_id);
@@ -222,11 +224,33 @@ int main(int argc, char ** argv) {
     }
     BN_bin2bn(k, k_len, bn_r);
 
+    /* If we're using RSA512 read the correct key (we have the 64bit one) */
+    if ((fp = fopen("server_folder/clients_rsa512_public_keys.txt", "r")) == NULL) {
+      fprintf(stderr, "Error while getting clients RSA public keys...\n");
+      goto next;
+    }
+    done = 0;
+    while (!feof(fp)) {
+      fscanf(fp, "%64s %64s %64s", client_nm_tmp, rsa_tmp, rsa_tmp2);
+      if (strcmp(client_nm_tmp, client_nm) == 0) {
+        done = 1;
+        break;
+      }
+    }
+    if (done == 0) {
+      fprintf(stderr, "Error: unrecognized client\n");
+      goto next;
+    }
+    fclose(fp);
+
+    BN_hex2bn(&bn_client_n, (const char *) rsa_tmp);
+    BN_hex2bn(&bn_client_e, (const char *) rsa_tmp2);
+
     /* ENCRYPT key */
     rsa_encrypt(bn_r, bn_client_e, bn_client_n);
 
     /* WRITE k to C */
-    buff = BN_bn2hex(bn_r);
+    buff = (uint8_t *) BN_bn2hex(bn_r);
     if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
       fprintf(stderr, "Error while sending C to the client...\n");
       goto next;
@@ -235,11 +259,18 @@ int main(int argc, char ** argv) {
 
     /* Encrypt communication */
     if ((msg_size = read_msg(cs_fifo_fd,&buff)) < 0) {
-      fprintf(stderr, "error while reading message from the client...\n");
+      fprintf(stderr, "Error while reading message from the client...\n");
       goto next;
     }
 
-    /* XXX: HOW TO GET C, G?*/
+    c_len = msg_size - HASH_LENGTH;
+    if (c_len < 0) {
+      fprintf(stderr, "Error, malformed message...\n");
+      goto next;
+    }
+
+    c = buff;
+    g = buff + c_len;
 
     /* Decrypt C */
     decrypt(sym_id, c, c_len, k);
@@ -257,15 +288,14 @@ int main(int argc, char ** argv) {
 
     /* If the check fails print error message */
     if (done == 0) {
-      if ((write_msg(sc_fifo_fd, CORRUPTED_STRING, strlen(CORRUPTED_STRING))) < 0) {
+      if ((write_msg(sc_fifo_fd, (uint8_t *) CORRUPTED_STRING, strlen(CORRUPTED_STRING))) < 0) {
         fprintf(stderr, "Error while writing to the client...\n");
         goto next;
       }
     }
 
     /* PUT M' on a file */
-    /* XXX: Which is the file to save? */
-    if (fopen("server_message", "w") == NULL) {
+    if (fopen("received_messages.txt", "a") == NULL) {
         fprintf(stderr, "Error while saving message...\n");
         fclose(fp);
         goto next;
@@ -274,7 +304,7 @@ int main(int argc, char ** argv) {
     fclose(fp);
 
     /* WRITE ok message to C */
-    if ((write_msg(sc_fifo_fd, DECRYPTED_STRING, strlen(DECRYPTED_STRING))) < 0) {
+    if ((write_msg(sc_fifo_fd, (uint8_t *) DECRYPTED_STRING, strlen(DECRYPTED_STRING))) < 0) {
       fprintf(stderr, "Error while writing C to the client...\n");
       goto next;
     }

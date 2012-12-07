@@ -1,7 +1,7 @@
 #include "common.h"
 #include <assert.h>
 
-void print_buff(u_int8_t * buff, size_t buff_size) {
+void print_buff(uint8_t * buff, size_t buff_size) {
   int i = 0, j;
 
   while (i < buff_size) {
@@ -34,11 +34,11 @@ void print_buff(u_int8_t * buff, size_t buff_size) {
 }
 
 int write_OK(int channel_fd) {
-  return (write_msg(channel_fd,(const u_int8_t *)OK_STRING,strlen(OK_STRING)));
+  return (write_msg(channel_fd,(const uint8_t *)OK_STRING,strlen(OK_STRING)));
 }
 
 int write_BYE(int channel_fd) {
-  return (write_msg(channel_fd,(const u_int8_t *)CLOSE_CONNECTION_STRING,strlen(CLOSE_CONNECTION_STRING)));
+  return (write_msg(channel_fd,(const uint8_t *)CLOSE_CONNECTION_STRING,strlen(CLOSE_CONNECTION_STRING)));
 }
 
 int open_channel(const char * pathname) {
@@ -58,10 +58,10 @@ void close_channel(int channel_fd) {
   close(channel_fd);
 }
 
-ssize_t read_msg(int channel_fd, u_int8_t ** msg) {
+ssize_t read_msg(int channel_fd, uint8_t ** msg) {
   ssize_t read_len;
-  u_int16_t msg_size;
-  static u_int8_t msg_buff[MSG_SIZE_MAX + 1];
+  uint16_t msg_size;
+  static uint8_t msg_buff[MSG_SIZE_MAX + 1];
   /* +1 in case someone wants to append '\0' */
 
   /* The first 16 bits represents the message size */
@@ -71,7 +71,7 @@ ssize_t read_msg(int channel_fd, u_int8_t ** msg) {
   }
 
   fprintf(stderr,"Reading size:\n");
-  print_buff((u_int8_t *)(&msg_size),sizeof(msg_size));
+  print_buff((uint8_t *)(&msg_size),sizeof(msg_size));
 
   /* Verify that the size of the message is no more than MSG_SIZE_MAX bytes */
   if (msg_size >= MSG_SIZE_MAX) {
@@ -89,12 +89,12 @@ ssize_t read_msg(int channel_fd, u_int8_t ** msg) {
   (*msg) = msg_buff;
 
   fprintf(stderr,"Reading message:\n");
-  print_buff((u_int8_t *)(*msg),msg_size);
+  print_buff((uint8_t *)(*msg),msg_size);
 
   return (read_len);
 }
 
-ssize_t write_msg(int channel_fd, const u_int8_t * msg, u_int16_t msg_size) {
+ssize_t write_msg(int channel_fd, const uint8_t * msg, uint16_t msg_size) {
   /* Send the size */
   if (write(channel_fd,(const void *)&msg_size,sizeof(msg_size)) < 0) {
     perror("write()");
@@ -102,7 +102,7 @@ ssize_t write_msg(int channel_fd, const u_int8_t * msg, u_int16_t msg_size) {
   }
 
   fprintf(stderr,"Writing size:\n");
-  print_buff((u_int8_t *)&msg_size,sizeof(msg_size));
+  print_buff((uint8_t *)&msg_size,sizeof(msg_size));
 
   /* Send the message */
   if (write(channel_fd,(const void *)msg,msg_size) < 0) {
@@ -111,14 +111,14 @@ ssize_t write_msg(int channel_fd, const u_int8_t * msg, u_int16_t msg_size) {
   }
 
   fprintf(stderr,"Writing message:\n");
-  print_buff((u_int8_t *)msg,msg_size);
+  print_buff((uint8_t *)msg,msg_size);
 
   return (msg_size);
 }
 
 int read_string(int channel_fd, const char * str) {
   size_t read_len;
-  u_int8_t * msg;
+  uint8_t * msg;
 
   read_len = read_msg(channel_fd,&msg);
   if ((read_len != strlen(str)) ||

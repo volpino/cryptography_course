@@ -10,12 +10,14 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include <openssl/bn.h>
 #include "lib/bunny24.h"
 #include "lib/bunny24_prng.h"
 #include "lib/A5_1.h"
 #include "lib/rsa.h"
+#include "lib/sponge_hash.h"
 
 #define MSG_SIZE_MAX 2048
 #define CONNECTION_STRING "Hello!"
@@ -28,12 +30,13 @@
 #define SEED_SIZE 3
 #define RSA_LENGTH 65
 #define HASH_LENGTH 20
+#define NM_LENGTH 65
 
-void print_buff(u_int8_t *, size_t);
+void print_buff(uint8_t *, size_t);
 int open_channel(const char *);
 void close_channel(int);
-ssize_t read_msg(int, u_int8_t **);
-ssize_t write_msg(int, const u_int8_t *, u_int16_t);
+ssize_t read_msg(int, uint8_t **);
+ssize_t write_msg(int, const uint8_t *, uint16_t);
 
 int read_string(int, const char *);
 int write_OK(int);
