@@ -1,7 +1,6 @@
 #!/bin/sh
 
-make clean
-make || exit 0
+make --quiet clean all || exit 0
 
 # Start server
 ./server serv-cli.fifo cli-serv.fifo whatever 2> /tmp/server_output &
