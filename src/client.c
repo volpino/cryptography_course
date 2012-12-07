@@ -4,13 +4,15 @@ int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
   int i;
   FILE *fp;
-  uint8_t rsa_tmp[RSA_LENGTH];
+  char rsa_tmp[RSA_LENGTH];
   ssize_t msg_size;
   uint8_t * buff;
   char * client_name;
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
   uint8_t bin_k[K_SIZE];
+  char message[ENCRYPTED_MSG_MAX + HASH_LENGTH];
+  char message_hex[(ENCRYPTED_MSG_MAX + HASH_LENGTH) * 2];
   uint8_t symm_cipher, hash, asymm_cipher;
   char ciphersuite;
 
@@ -59,9 +61,10 @@ int main(int argc, char ** argv) {
     fprintf(stderr, "Error while getting server RSA public key...\n");
     goto next;
   }
-  fscanf(fp, "%64s", rsa_tmp);
+  fscanf(fp, "%64[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_n, rsa_tmp);
-  fscanf(fp, "%64s", rsa_tmp);
+  fscanf(fp, "%64[^,]", rsa_tmp);
+  fscanf(fp, ",");
   BN_hex2bn(&rsa_server_e, rsa_tmp);
   fclose(fp);
 
@@ -79,8 +82,8 @@ int main(int argc, char ** argv) {
   rsa_encrypt(rc, rsa_server_e, rsa_server_n);
 
   /* WRITE c to S */
-  buff = BN_bn2hex(rc);
-  msg_size = strlen(buff);
+  buff = (uint8_t *) BN_bn2hex(rc);
+  msg_size = strlen((char*)buff);
   if ((write_msg(cs_fifo_fd, buff, msg_size)) < 0) {
     fprintf(stderr, "Error while sending C to the server...\n");
     goto next;
@@ -93,7 +96,7 @@ int main(int argc, char ** argv) {
     goto next;
   }
   buff[msg_size] = '\0';
-  BN_hex2bn(&rc, buff);   /* overwrite rc to store r' */
+  BN_hex2bn(&rc, (char*)buff);   /* overwrite rc to store r' */
 
   /* CHECK if r = r' */
   if (BN_cmp(r, rc) != 0) {
@@ -104,7 +107,7 @@ int main(int argc, char ** argv) {
   /* Client authentication */
   /* SEND client_name to S */
   msg_size = strlen(client_name);
-  if ((write_msg(cs_fifo_fd, client_name, msg_size)) < 0) {
+  if ((write_msg(cs_fifo_fd, (uint8_t*)client_name, msg_size)) < 0) {
     fprintf(stderr, "Error while sending name to the server...\n");
     goto next;
   }
@@ -114,9 +117,10 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
   }
-  fscanf(fp, "%64s\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_n, rsa_tmp);
-  fscanf(fp, "%64s\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);
 
@@ -126,14 +130,14 @@ int main(int argc, char ** argv) {
     goto next;
   }
   buff[msg_size] = '\0';
-  BN_hex2bn(&rc, buff);
+  BN_hex2bn(&rc, (char*)buff);
 
   /* DECRYPT c using (c_prk,n) -> r' = c^c_prk mod n */
   rsa_decrypt(rc, rsa_d, rsa_n);
 
   /* WRITE r' to S */
-  buff = BN_bn2hex(rc);
-  msg_size = strlen(buff);
+  buff = (uint8_t*) BN_bn2hex(rc);
+  msg_size = strlen((char*)buff);
   if ((write_msg(cs_fifo_fd, buff, msg_size)) < 0) {
     fprintf(stderr, "Error while sending response to the server's chellange...\n");
     goto next;
@@ -150,7 +154,7 @@ int main(int argc, char ** argv) {
   cipher_suite_table(ciphersuite, &symm_cipher, &hash, &asymm_cipher);
 
   /* SEND my cipher suite to server */
-  if ((write_msg(cs_fifo_fd, &ciphersuite, 1)) < 0) {
+  if ((write_msg(cs_fifo_fd, (uint8_t*)(&ciphersuite), 1)) < 0) {
     fprintf(stderr, "Error while sending siphersuite to the server...\n");
     goto next;
   }
@@ -162,10 +166,10 @@ int main(int argc, char ** argv) {
     goto next;
   }
   buff[msg_size] = '\0';
-  BN_hex2bn(&k, buff);   /* overwrite rc to store r' */
+  BN_hex2bn(&k, (char*)buff);   /* overwrite rc to store r' */
 
-  /* GET my private key from proper file */
-  if (asymm_cipher == 6) { /* 512 bits */
+  /* GET my private key from proper file (if not already loaded) */
+  if (asymm_cipher == 6) { /* 512 bits - rsa */
     if ((fp = fopen("client_folder/client_rsa512_private_key.txt", "r")) == NULL) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
@@ -180,13 +184,38 @@ int main(int argc, char ** argv) {
   /* compute k from h and my private key */
   rsa_decrypt(k, rsa_d, rsa_n);
   assert(BN_num_bytes(k) <= K_SIZE);
-  BN_bn2bin(k, k_bin);
+  BN_bn2bin(k, bin_k);
 
   /* Encrypt communication */
-  /* ... */
+  /* GET message from file */
+  if ((fp = fopen("client_folder/client_message.txt", "r")) == NULL) {
+    fprintf(stderr, "Error while getting my private key...\n");
+    goto next;
+  }
+  fgets(message, ENCRYPTED_MSG_MAX, fp);
+  fclose(fp);
+
+  msg_size = strlen(message);
+
+  /* hash the message */
+  sponge_hash((uint8_t*)message, msg_size, (uint8_t*)(message + msg_size));
+
+  /* encrypt the message */
+  encrypt(symm_cipher, (uint8_t*)message, msg_size, bin_k);
+  for (i=0; i<msg_size+HASH_LENGTH; i++) {
+    sprintf(message_hex+(2*i), "%02x", message[i]);
+  }
+
+  /* send message + hash to server*/
+  if ((write_msg(cs_fifo_fd, (uint8_t*)message_hex,(msg_size + HASH_LENGTH)*2)) < 0) {
+    fprintf(stderr, "Error while sending encrypted message to the server...\n");
+    goto next;
+  }
 
   /* Disconnection */
-  /* ... */
+  if (read_string(sc_fifo_fd, DECRYPTED_STRING) < 0) {
+    fprintf(stderr,"Error reading server confirmation!\n");
+  }
 
 
  next:
@@ -194,7 +223,7 @@ int main(int argc, char ** argv) {
   fprintf(stderr,"Closing connection...\n");
 
   /* Expect BYE */
-  if (read_string(sc_fifo_fd,CLOSE_CONNECTION_STRING) < 0) {
+  if (read_string(sc_fifo_fd, CLOSE_CONNECTION_STRING) < 0) {
     fprintf(stderr,"Communication error\n");
     goto next;
   }
