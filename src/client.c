@@ -63,8 +63,8 @@ int main(int argc, char ** argv) {
   }
   fscanf(fp, "%64[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_n, rsa_tmp);
-  fscanf(fp, "%64[^,]", rsa_tmp);
   fscanf(fp, ",");
+  fscanf(fp, "%64[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_e, rsa_tmp);
   fclose(fp);
 
@@ -75,7 +75,11 @@ int main(int argc, char ** argv) {
   }
   fclose(fp);
   bunny24_prng(seed, SEED_SIZE, NULL, bin_r, R_SIZE);
-  BN_bin2bn(bin_r, R_SIZE, r);
+  /* XXX: REMOVE THIS!!! */
+  bin_r[0] = 0x02;
+  BN_bin2bn(bin_r, 1, r);
+
+  /*BN_bin2bn(bin_r, R_SIZE, r);*/
 
   /* ENCRYPT r using (s_puk,n) -> c = r^s_puk mod n */
   BN_copy(rc, r);
@@ -119,7 +123,7 @@ int main(int argc, char ** argv) {
   }
   fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_n, rsa_tmp);
-  fscanf(fp, "%64[^,]\n", rsa_tmp);
+  fscanf(fp, ",");
   fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);

@@ -1,7 +1,7 @@
 #ifndef _RSA_H_
 #define _RSA_H_
 
-#define N_PRIMES 2048
+#define N_PRIMES 2049
 
 #include <openssl/bn.h>
 

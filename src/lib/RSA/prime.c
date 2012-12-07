@@ -1,8 +1,8 @@
 #include "../rsa.h"
 #include "../bunny24_prng.h"
 
-#define KEY_LENGTH 64  /* bytes */
-#define KEY_LENGTH_3 66  /* bytes */
+#define KEY_LENGTH 8  /* bytes */
+#define KEY_LENGTH_3 9  /* bytes */
 #define SEED_LENGTH 64  /* bytes */
 
 void generate_random_prime(BIGNUM *p) {

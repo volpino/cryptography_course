@@ -119,8 +119,11 @@ int main(int argc, char ** argv) {
     rsa_decrypt(bn_r, bn_d, bn_n);
     buff = (uint8_t *) BN_bn2hex(bn_r);
 
+    printf("\n\n\n(%s)\n\n\n\n", buff);
+    fflush(stdout);
+
     /* SEND r' to C */
-    if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
+    if ((write_msg(sc_fifo_fd, buff, strlen((char *) buff))) < 0) {
       fprintf(stderr, "Error while sending C to the client...\n");
       goto next;
     }
@@ -168,12 +171,16 @@ int main(int argc, char ** argv) {
 
     BN_bin2bn(r, R_SIZE, bn_r);
 
+    /* XXX: REMOVE THIS!!! */
+    r[0] = 0x03;
+    BN_bin2bn(r, 1, bn_r);
+
     /* ENCRYPT r using c_puk[i] -> r' = r^c_puk[i] mod n[i] */
     rsa_encrypt(bn_r, bn_client_e, bn_client_n);
 
     /* WRITE c to C */
     buff = (uint8_t *) BN_bn2hex(bn_r);
-    if ((write_msg(sc_fifo_fd, buff, msg_size)) < 0) {
+    if ((write_msg(sc_fifo_fd, buff, strlen((char *) buff))) < 0) {
       fprintf(stderr, "Error while sending C to the client...\n");
       goto next;
     }
@@ -187,6 +194,10 @@ int main(int argc, char ** argv) {
 
     /* CHECK that r = r' */
     BN_bin2bn(r, R_SIZE, bn_r);
+    /* XXX: REMOVE THIS!!! */
+    BN_bin2bn(r, 1, bn_r);
+
+    buff[msg_size] = '\0';
     BN_hex2bn(&bn_r1, (const char *) buff);
     if (BN_cmp(bn_r, bn_r1) != 0) {
       fprintf(stderr, "Error, r and r' mismatch!\n");

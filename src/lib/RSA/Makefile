@@ -21,5 +21,8 @@ $(TEST): $(OBJS) test.c
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
+gen_key: $(OBJS) gen_key.c
+	$(CC) $(CFLAGS) $^ -o $@ -L .. -lrsa -lbunny24_prng -lbunny24 -lfield -lcrypto
+
 clean:
 	$(RM) $(OBJS) $(LIB) $(TEST)
