@@ -31,6 +31,7 @@
 #define RSA_LENGTH 65
 #define HASH_LENGTH 20
 #define NM_LENGTH 65
+#define ENCRYPTED_MSG_MAX 128
 
 void print_buff(uint8_t *, size_t);
 int open_channel(const char *);

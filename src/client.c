@@ -11,7 +11,8 @@ int main(int argc, char ** argv) {
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
   uint8_t bin_k[K_SIZE];
-  char message[MSG_SIZE_MAX];
+  char message[ENCRYPTED_MSG_MAX + HASH_LENGTH];
+  char message_hex[(ENCRYPTED_MSG_MAX + HASH_LENGTH) * 2];
   uint8_t symm_cipher, hash, asymm_cipher;
   char ciphersuite;
 
@@ -60,9 +61,10 @@ int main(int argc, char ** argv) {
     fprintf(stderr, "Error while getting server RSA public key...\n");
     goto next;
   }
-  fscanf(fp, "%64s", rsa_tmp);
+  fscanf(fp, "%64[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_n, rsa_tmp);
-  fscanf(fp, "%64s", rsa_tmp);
+  fscanf(fp, "%64[^,]", rsa_tmp);
+  fscanf(fp, ",");
   BN_hex2bn(&rsa_server_e, rsa_tmp);
   fclose(fp);
 
@@ -115,9 +117,10 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
   }
-  fscanf(fp, "%64s\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_n, rsa_tmp);
-  fscanf(fp, "%64s\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
+  fscanf(fp, "%64[^,]\n", rsa_tmp);
   BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);
 
@@ -189,7 +192,7 @@ int main(int argc, char ** argv) {
     fprintf(stderr, "Error while getting my private key...\n");
     goto next;
   }
-  fgets(message, MSG_SIZE_MAX - HASH_LENGTH, fp); /* is the length correct? */
+  fgets(message, ENCRYPTED_MSG_MAX, fp);
   fclose(fp);
 
   msg_size = strlen(message);
@@ -198,11 +201,13 @@ int main(int argc, char ** argv) {
   sponge_hash((uint8_t*)message, msg_size, (uint8_t*)(message + msg_size));
 
   /* encrypt the message */
-
   encrypt(symm_cipher, (uint8_t*)message, msg_size, bin_k);
+  for (i=0; i<msg_size+HASH_LENGTH; i++) {
+    sprintf(message_hex+(2*i), "%02x", message[i]);
+  }
 
   /* send message + hash to server*/
-  if ((write_msg(cs_fifo_fd, (uint8_t*)message, msg_size + HASH_LENGTH)) < 0) {
+  if ((write_msg(cs_fifo_fd, (uint8_t*)message_hex,(msg_size + HASH_LENGTH)*2)) < 0) {
     fprintf(stderr, "Error while sending encrypted message to the server...\n");
     goto next;
   }
