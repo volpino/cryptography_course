@@ -7,7 +7,7 @@ void print_buff(uint8_t * buff, size_t buff_size) {
   while (i < buff_size) {
     j = 0;
     while (((j + i) < buff_size) && (j < 16)) {
-      fprintf(stderr,"%02X ",buff[j]);
+      fprintf(stderr,"%02X ",buff[i+j]);
       j++;
     }
 
@@ -19,7 +19,7 @@ void print_buff(uint8_t * buff, size_t buff_size) {
 
     j = 0;
     while (((j + i) < buff_size) && (j < 16)) {
-      fprintf(stderr,"%c",isprint(buff[j]) ? buff[j] : '.');
+      fprintf(stderr,"%c",isprint(buff[i+j]) ? buff[i+j] : '.');
       j++;
     }
 

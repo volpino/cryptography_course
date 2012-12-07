@@ -3,3 +3,5 @@ server
 *.fifo
 a.out
 *_test
+server_folder/received_messages.txt
+gen_key*

@@ -11,7 +11,7 @@ int main(int argc, char ** argv) {
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
   uint8_t bin_k[K_SIZE];
-  char message[ENCRYPTED_MSG_MAX + HASH_LENGTH];
+  unsigned char message[ENCRYPTED_MSG_MAX + HASH_LENGTH];
   char message_hex[(ENCRYPTED_MSG_MAX + HASH_LENGTH) * 2];
   uint8_t symm_cipher, hash, asymm_cipher;
   char ciphersuite;
@@ -75,11 +75,8 @@ int main(int argc, char ** argv) {
   }
   fclose(fp);
   bunny24_prng(seed, SEED_SIZE, NULL, bin_r, R_SIZE);
-  /* XXX: REMOVE THIS!!! */
-  bin_r[0] = 0x02;
-  BN_bin2bn(bin_r, 1, r);
 
-  /*BN_bin2bn(bin_r, R_SIZE, r);*/
+  BN_bin2bn(bin_r, R_SIZE, r);
 
   /* ENCRYPT r using (s_puk,n) -> c = r^s_puk mod n */
   BN_copy(rc, r);
@@ -196,16 +193,17 @@ int main(int argc, char ** argv) {
     fprintf(stderr, "Error while getting my private key...\n");
     goto next;
   }
-  fgets(message, ENCRYPTED_MSG_MAX, fp);
+  fgets((char *) message, ENCRYPTED_MSG_MAX, fp);
   fclose(fp);
 
-  msg_size = strlen(message);
+  msg_size = strlen((char *) message);
 
   /* hash the message */
   sponge_hash((uint8_t*)message, msg_size, (uint8_t*)(message + msg_size));
 
   /* encrypt the message */
-  encrypt(symm_cipher, (uint8_t*)message, msg_size, bin_k);
+  encrypt(symm_cipher, (uint8_t *)message, msg_size, bin_k);
+
   for (i=0; i<msg_size+HASH_LENGTH; i++) {
     sprintf(message_hex+(2*i), "%02x", message[i]);
   }
@@ -221,7 +219,6 @@ int main(int argc, char ** argv) {
     fprintf(stderr,"Error reading server confirmation!\n");
   }
 
-
  next:
   /* Close connection with the server */
   fprintf(stderr,"Closing connection...\n");
@@ -235,10 +232,6 @@ int main(int argc, char ** argv) {
   close_channel(cs_fifo_fd);
   close_channel(sc_fifo_fd);
 
-  BN_free(rsa_n);
-  BN_free(rsa_d);
-  BN_free(rsa_server_n);
-  BN_free(rsa_server_e);
   BN_free(r);
   BN_free(rc);
   BN_free(rsa_n);

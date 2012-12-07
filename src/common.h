@@ -25,8 +25,8 @@
 #define DECRYPTED_STRING "MESSAGE RECEIVED AND DECRYPTED!"
 #define CORRUPTED_STRING "CORRUPTED MESSAGE RECEIVED!"
 #define OK_STRING "OK"
-#define R_SIZE 32
-#define R_SIZE_3 33
+#define R_SIZE 6
+#define R_SIZE_3 6
 #define K_SIZE 8
 #define K_SIZE_3 9
 #define SEED_SIZE 12  /* Must be multiple of 3 */
