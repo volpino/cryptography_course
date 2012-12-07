@@ -26,11 +26,14 @@
 #define CORRUPTED_STRING "CORRUPTED MESSAGE RECEIVED!"
 #define OK_STRING "OK"
 #define R_SIZE 32
+#define R_SIZE_3 33
 #define K_SIZE 8
-#define SEED_SIZE 3
+#define K_SIZE_3 9
+#define SEED_SIZE 12  /* Must be multiple of 3 */
 #define RSA_LENGTH 65
 #define HASH_LENGTH 20
 #define NM_LENGTH 65
+#define MAX_LOOPS 1024
 
 void print_buff(uint8_t *, size_t);
 int open_channel(const char *);

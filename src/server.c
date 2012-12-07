@@ -30,15 +30,18 @@ int wait_connection(int channel_fd) {
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
   int done;
-  int i, c_len;
+  int i, loops, c_hex_len, c_len;
   char client_nm[NM_LENGTH], client_nm_tmp[NM_LENGTH], cipher_tmp, client_cipher_suite;
   uint8_t rsa_tmp[RSA_LENGTH], rsa_tmp2[RSA_LENGTH];
   ssize_t msg_size;
-  uint8_t *buff, *c, *g;
-  uint8_t r[R_SIZE];
+  uint8_t *buff, *c_hex, *g_hex;
+  char * tmp;
+  uint8_t c[MSG_SIZE_MAX];
+  uint8_t r[R_SIZE_3];
   uint8_t seed[SEED_SIZE];
-  uint8_t k[K_SIZE];
-  uint8_t g1[HASH_LENGTH];
+  uint8_t iv[3];
+  uint8_t k[K_SIZE_3];
+  uint8_t g[HASH_LENGTH], g1[HASH_LENGTH];
   uint8_t sym_id, hash_id, public_id;
   int k_len;
   FILE *fp;
@@ -59,7 +62,21 @@ int main(int argc, char ** argv) {
   }
 
   /* Main loop */
+  loops = 0;
   do {
+    if (loops % MAX_LOOPS == 0) {
+      fp = fopen("/dev/random", "r");
+      for (i=0; i<SEED_SIZE; i++) {
+        fscanf(fp, "%c", &(seed[i]));
+      }
+      fclose(fp);
+      iv[0] = 0;
+      iv[1] = 0;
+      iv[2] = 0;
+    }
+
+    loops++;
+
     /* Open the server->client fifo */
     fprintf(stderr,"Opening server->client fifo...\n");
     sc_fifo_fd = open_fifo(argv[1]);
@@ -85,10 +102,9 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting server RSA private key...\n");
       goto next;
     }
-    fscanf(fp, "%64s\n", rsa_tmp);
+    fscanf(fp, "%64[^,],%64[^,]", rsa_tmp, rsa_tmp2);
     BN_hex2bn(&bn_n, (const char *) rsa_tmp);
-    fscanf(fp, "%64s\n", rsa_tmp);
-    BN_hex2bn(&bn_d, (const char *) rsa_tmp);
+    BN_hex2bn(&bn_d, (const char *) rsa_tmp2);
     fclose(fp);
 
     /* READ c from C */
@@ -145,12 +161,11 @@ int main(int argc, char ** argv) {
     BN_hex2bn(&bn_client_e, (const char *) rsa_tmp2);
 
     /* CREATE a pseudo-random message r */
-    fp = fopen("/dev/random", "r");
-    for (i=0; i<SEED_SIZE; i++) {
-      fscanf(fp, "%c", &(seed[i]));
-    }
-    fclose(fp);
-    bunny24_prng(seed, SEED_SIZE, NULL, r, R_SIZE);
+    bunny24_prng(seed, SEED_SIZE, iv, r, R_SIZE_3);
+    iv[0] = r[R_SIZE_3 - 3];
+    iv[1] = r[R_SIZE_3 - 2];
+    iv[2] = r[R_SIZE_3 - 1];
+
     BN_bin2bn(r, R_SIZE, bn_r);
 
     /* ENCRYPT r using c_puk[i] -> r' = r^c_puk[i] mod n[i] */
@@ -210,12 +225,11 @@ int main(int argc, char ** argv) {
     /* Negotiation of the private key */
 
     /* CREATE a pseudo-random key */
-    fp = fopen("/dev/random", "r");
-    for (i=0; i<SEED_SIZE; i++) {
-      fscanf(fp, "%c", &(seed[i]));
-    }
-    fclose(fp);
-    bunny24_prng(seed, SEED_SIZE, NULL, k, K_SIZE);
+    bunny24_prng(seed, SEED_SIZE, iv, k, K_SIZE_3);
+    iv[0] = k[K_SIZE_3 - 3];
+    iv[1] = k[K_SIZE_3 - 2];
+    iv[2] = k[K_SIZE_3 - 1];
+
     if (sym_id == 1) {
       k_len = 3;
     }
@@ -263,14 +277,23 @@ int main(int argc, char ** argv) {
       goto next;
     }
 
-    c_len = msg_size - HASH_LENGTH;
-    if (c_len < 0) {
+    c_hex_len = msg_size - HASH_LENGTH * 2;
+    if (c_hex_len <= 0) {
       fprintf(stderr, "Error, malformed message...\n");
       goto next;
     }
 
-    c = buff;
-    g = buff + c_len;
+    c_len = c_hex_len / 2;
+    for (i=0; i<msg_size; i+=2) {
+      if (i < c_hex_len) {
+        tmp = buff + i + 2;
+        c[i] = (uint8_t) strtoul(buff+i, &tmp, 16);
+      }
+      else {
+        tmp = buff + i + 2;
+        g[i - c_hex_len] = (uint8_t) strtoul(buff+i, &tmp, 16);
+      }
+    }
 
     /* Decrypt C */
     decrypt(sym_id, c, c_len, k);
