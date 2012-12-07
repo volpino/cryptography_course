@@ -2,6 +2,7 @@
 
 int main(int argc, char ** argv) {
   int sc_fifo_fd, cs_fifo_fd;
+  int i;
   FILE *fp;
   uint8_t rsa_tmp[RSA_LENGTH];
   ssize_t msg_size;
@@ -9,6 +10,7 @@ int main(int argc, char ** argv) {
   char * client_name;
   uint8_t seed[SEED_SIZE];
   uint8_t bin_r[R_SIZE];
+  uint8_t bin_k[K_SIZE];
   uint8_t symm_cipher, hash, asymm_cipher;
   char ciphersuite;
 
@@ -16,10 +18,16 @@ int main(int argc, char ** argv) {
     *rsa_n, *rsa_d, /* my private key */
     *rsa_server_n, *rsa_server_e, /* server pub key */
     *r,   /* random number */
-    *rc;  /* encrypted r */
+    *rc,  /* encrypted r */
+    *k;   /* symmetric key */
 
   r = BN_new();
   rc = BN_new();
+  rsa_n = BN_new();
+  rsa_d = BN_new();
+  rsa_server_n = BN_new();
+  rsa_server_e = BN_new();
+  k = BN_new();
 
   /* Mandatory arguments */
   if (!argv[1] || !argv[2] || !argv[3] || !argv[4]) {
@@ -99,15 +107,15 @@ int main(int argc, char ** argv) {
     goto next;
   }
 
-  /* GET private rsa key of C, (s_prk,n) from "client_folder/client_rsa_private_key.txt" */
-  if ((fp = fopen("client_folder/client_rsa_private_key.txt", "r")) == NULL) {
+  /* GET private rsa key of C, (s_prk,n) from "client_folder/client_rsa64_private_key.txt" */
+  if ((fp = fopen("client_folder/client_rsa64_private_key.txt", "r")) == NULL) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
   }
   fscanf(fp, "%64s\n", rsa_tmp);
-  BN_hex2bn(&n, rsa_tmp);
+  BN_hex2bn(&rsa_n, rsa_tmp);
   fscanf(fp, "%64s\n", rsa_tmp);
-  BN_hex2bn(&d, rsa_tmp);
+  BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);
 
   /* READ c from S */
@@ -119,7 +127,7 @@ int main(int argc, char ** argv) {
   BN_hex2bn(&rc, buff);
 
   /* DECRYPT c using (c_prk,n) -> r' = c^c_prk mod n */
-  rsa_decrypt(rc, d, n);
+  rsa_decrypt(rc, rsa_d, rsa_n);
 
   /* WRITE r' to S */
   buff = BN_bn2hex(rc);
@@ -147,10 +155,34 @@ int main(int argc, char ** argv) {
   }
 
   /* Negotiation of the private key */
-  
+  /* READ h from server */
+  if ((msg_size = read_msg(sc_fifo_fd, &buff)) < 0) {
+    fprintf(stderr, "Error while getting symmetric key from server...\n");
+    goto next;
+  }
+  buff[msg_size] = '\0';
+  BN_hex2bn(&k, buff);   /* overwrite rc to store r' */
+
+  /* GET my private key from proper file */
+  if (asymm_cipher == 6) { /* 512 bits */
+    if ((fp = fopen("client_folder/client_rsa512_private_key.txt", "r")) == NULL) {
+      fprintf(stderr, "Error while getting my private key...\n");
+      goto next;
+    }
+    fscanf(fp, "%64s\n", rsa_tmp);
+    BN_hex2bn(&rsa_n, rsa_tmp);
+    fscanf(fp, "%64s\n", rsa_tmp);
+    BN_hex2bn(&rsa_d, rsa_tmp);
+    fclose(fp);
+  }
+
+  /* compute k from h and my private key */
+  rsa_decrypt(k, rsa_d, rsa_n);
+  assert(BN_num_bytes(k) <= K_SIZE);
+  BN_bn2bin(k, k_bin);
 
   /* Encrypt communication */
-  /* ... */
+  
 
   /* Disconnection */
   /* ... */
@@ -171,6 +203,11 @@ int main(int argc, char ** argv) {
 
   BN_free(r);
   BN_free(rc);
+  BN_free(rsa_n);
+  BN_free(rsa_d);
+  BN_free(rsa_server_n);
+  BN_free(rsa_server_e);
+  BN_free(k);
 
   exit(0);
 }
