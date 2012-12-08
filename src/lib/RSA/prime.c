@@ -1,19 +1,25 @@
 #include "../rsa.h"
 #include "../bunny24_prng.h"
+#include <assert.h>
 
-#define KEY_LENGTH 8  /* bytes */
-#define KEY_LENGTH_3 9  /* bytes */
+#define MAX_KEY_LENGTH 64  /* bytes */
+#define MAX_KEY_LENGTH_3 66  /* bytes */
 #define SEED_LENGTH 64  /* bytes */
 
-void generate_random_prime(BIGNUM *p) {
+void generate_random_prime(BIGNUM *p, int key_len) {
+  /* Round to the next multiple of 3 */
+  int key_len_3 = key_len + ((3 - key_len % 3) % 3);
+
   int done, found;
   int i, j;
   int not_prime;
-  int checks = BN_prime_checks_for_size(KEY_LENGTH * 8);
-  uint8_t random_bits[KEY_LENGTH_3];
+  int checks = BN_prime_checks_for_size(key_len * 8);
+  uint8_t random_bits[MAX_KEY_LENGTH_3];
   uint8_t seed[SEED_LENGTH];
   uint8_t iv[3] = {0x00, 0x00, 0x00};
   FILE *fp;
+
+  assert(key_len <= MAX_KEY_LENGTH);
 
   BIGNUM *q, *pm1, *pp1;
   BN_CTX *ctx;
@@ -52,11 +58,11 @@ void generate_random_prime(BIGNUM *p) {
       }
 
       /* pick a random q with first bit as 0, second and last as 1 */
-      bunny24_prng(seed, SEED_LENGTH, iv, random_bits, KEY_LENGTH_3);
+      bunny24_prng(seed, SEED_LENGTH, iv, random_bits, key_len_3);
 
-      iv[0] = random_bits[KEY_LENGTH_3-3];  /* Set the IV for the next loop */
-      iv[1] = random_bits[KEY_LENGTH_3-2];
-      iv[2] = random_bits[KEY_LENGTH_3-1];
+      iv[0] = random_bits[key_len_3-3];  /* Set the IV for the next loop */
+      iv[1] = random_bits[key_len_3-2];
+      iv[2] = random_bits[key_len_3-1];
 
       /* Set the seed for the next loop */
       /*for (i=0; i<SEED_LENGTH; i++) {
@@ -65,10 +71,10 @@ void generate_random_prime(BIGNUM *p) {
 
       random_bits[0] &= 0x7F;  /* First bit as 0 0x7F=01111111 */
       random_bits[0] |= 0x40;  /* Second bit as 1 0x40=01000000 */
-      random_bits[KEY_LENGTH-1] |= 0x01;  /* Last bit as 1 */
+      random_bits[key_len-1] |= 0x01;  /* Last bit as 1 */
 
       /* convert the random bytes to a bignum */
-      BN_bin2bn(random_bits, KEY_LENGTH, q);
+      BN_bin2bn(random_bits, key_len, q);
 
       /* generate p = 2 * q + 1*/
       BN_zero(p);

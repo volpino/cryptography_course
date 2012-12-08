@@ -17,7 +17,7 @@ int main() {
   printf("\n\n");*/
 
   /* Try to generate a prime */
-  generate_random_prime(m);
+  generate_random_prime(m, 64);
   BN_print_fp(stdout, m);
   printf("\n");
 

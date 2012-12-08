@@ -30,9 +30,9 @@
 #define K_SIZE 8
 #define K_SIZE_3 9
 #define SEED_SIZE 12  /* Must be multiple of 3 */
-#define RSA_LENGTH 65
+#define RSA_LENGTH 130
 #define HASH_LENGTH 20
-#define NM_LENGTH 65
+#define NM_LENGTH 130
 #define MAX_LOOPS 1024
 #define ENCRYPTED_MSG_MAX 128
 

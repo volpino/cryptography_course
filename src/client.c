@@ -61,10 +61,10 @@ int main(int argc, char ** argv) {
     fprintf(stderr, "Error while getting server RSA public key...\n");
     goto next;
   }
-  fscanf(fp, "%64[^,]", rsa_tmp);
+  fscanf(fp, "%129[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_n, rsa_tmp);
   fscanf(fp, ",");
-  fscanf(fp, "%64[^,]", rsa_tmp);
+  fscanf(fp, "%129[^,]", rsa_tmp);
   BN_hex2bn(&rsa_server_e, rsa_tmp);
   fclose(fp);
 
@@ -118,10 +118,10 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
   }
-  fscanf(fp, "%64[^,]\n", rsa_tmp);
+  fscanf(fp, "%129[^,]", rsa_tmp);
   BN_hex2bn(&rsa_n, rsa_tmp);
   fscanf(fp, ",");
-  fscanf(fp, "%64[^,]\n", rsa_tmp);
+  fscanf(fp, "%129[^,]", rsa_tmp);
   BN_hex2bn(&rsa_d, rsa_tmp);
   fclose(fp);
 
@@ -175,15 +175,17 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting my private key...\n");
       goto next;
     }
-    fscanf(fp, "%64s\n", rsa_tmp);
+    fscanf(fp, "%129[^,]", rsa_tmp);
     BN_hex2bn(&rsa_n, rsa_tmp);
-    fscanf(fp, "%64s\n", rsa_tmp);
+    fscanf(fp, ",");
+    fscanf(fp, "%129[^,]", rsa_tmp);
     BN_hex2bn(&rsa_d, rsa_tmp);
     fclose(fp);
   }
 
   /* compute k from h and my private key */
   rsa_decrypt(k, rsa_d, rsa_n);
+
   assert(BN_num_bytes(k) <= K_SIZE);
   BN_bn2bin(k, bin_k);
 

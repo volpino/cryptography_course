@@ -7,7 +7,7 @@
 
 extern const int primes[N_PRIMES];
 
-void generate_random_prime(BIGNUM *p);
+void generate_random_prime(BIGNUM *p, int key_len);
 void rsa_encrypt(BIGNUM* m, const BIGNUM* e, const BIGNUM* n);
 void rsa_decrypt(BIGNUM* m, const BIGNUM* d, const BIGNUM* n);
 

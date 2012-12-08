@@ -102,7 +102,7 @@ int main(int argc, char ** argv) {
       fprintf(stderr, "Error while getting server RSA private key...\n");
       goto next;
     }
-    fscanf(fp, "%64[^,],%64[^,]", rsa_tmp, rsa_tmp2);
+    fscanf(fp, "%129[^,],%129[^,]", rsa_tmp, rsa_tmp2);
     BN_hex2bn(&bn_n, (const char *) rsa_tmp);
     BN_hex2bn(&bn_d, (const char *) rsa_tmp2);
     fclose(fp);
@@ -145,7 +145,7 @@ int main(int argc, char ** argv) {
     }
     done = 0;
     while (!feof(fp)) {
-      fscanf(fp, "%64s %64s %64s", client_nm_tmp, rsa_tmp, rsa_tmp2);
+      fscanf(fp, "%129s %129s %129s", client_nm_tmp, rsa_tmp, rsa_tmp2);
       if (strcmp(client_nm_tmp, client_nm) == 0) {
         done = 1;
         break;
@@ -248,7 +248,7 @@ int main(int argc, char ** argv) {
       }
       done = 0;
       while (!feof(fp)) {
-        fscanf(fp, "%64s %64s %64s", client_nm_tmp, rsa_tmp, rsa_tmp2);
+        fscanf(fp, "%129s %129s %129s", client_nm_tmp, rsa_tmp, rsa_tmp2);
         if (strcmp(client_nm_tmp, client_nm) == 0) {
           done = 1;
           break;
