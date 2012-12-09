@@ -2,13 +2,14 @@
 
 
 int main(int argc, char **argv) {
-  BIGNUM *p, *q, *n, *e, *d, *phi, *pm1, *qm1;
+  BIGNUM *p, *q, *pmq, *n, *e, *d, *phi, *pm1, *qm1;
   int key_len;
 
   BN_CTX *ctx = BN_CTX_new();
 
   p = BN_new();
   q = BN_new();
+  pmq =  BN_new();
   n = BN_new();
   e = BN_new();
   d = BN_new();
@@ -27,8 +28,18 @@ int main(int argc, char **argv) {
 
   generate_random_prime(p, key_len / 2);
   printf("\n[+] Generated p...\n");
-  generate_random_prime(q, key_len / 2);
-  printf("\n[+] Generated q...\n");
+
+  do {
+    generate_random_prime(q, key_len / 2);
+    printf("\n[+] Generated q...\n");
+    if (BN_cmp(p, q) < 0) {
+      BN_sub(pmq, p, q);
+    }
+    else {
+      BN_sub(pmq, q, p);
+    }
+  } while (BN_num_bits(pmq) < (key_len*8) / 4);
+  printf("[+] |p - q| = %d bits\n", BN_num_bits(pmq));
 
   BN_mul(n, p, q, ctx);
 
@@ -70,6 +81,7 @@ int main(int argc, char **argv) {
   BN_free(phi);
   BN_free(pm1);
   BN_free(qm1);
+  BN_free(pmq);
 
   BN_CTX_free(ctx);
 
