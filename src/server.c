@@ -161,12 +161,14 @@ int main(int argc, char ** argv) {
     BN_hex2bn(&bn_client_e, (const char *) rsa_tmp2);
 
     /* CREATE a pseudo-random message r */
-    bunny24_prng(seed, SEED_SIZE, iv, r, R_SIZE_3);
-    iv[0] = r[R_SIZE_3 - 3];
-    iv[1] = r[R_SIZE_3 - 2];
-    iv[2] = r[R_SIZE_3 - 1];
+    do {
+      bunny24_prng(seed, SEED_SIZE, iv, r, R_SIZE_3);
+      iv[0] = r[R_SIZE_3 - 3];
+      iv[1] = r[R_SIZE_3 - 2];
+      iv[2] = r[R_SIZE_3 - 1];
 
-    BN_bin2bn(r, R_SIZE, bn_r);
+      BN_bin2bn(r, R_SIZE, bn_r);
+    } while (BN_is_zero(bn_r) || BN_is_one(bn_r));
 
     /* ENCRYPT r using c_puk[i] -> r' = r^c_puk[i] mod n[i] */
     rsa_encrypt(bn_r, bn_client_e, bn_client_n);
@@ -227,18 +229,20 @@ int main(int argc, char ** argv) {
     /* Negotiation of the private key */
 
     /* CREATE a pseudo-random key */
-    bunny24_prng(seed, SEED_SIZE, iv, k, K_SIZE_3);
-    iv[0] = k[K_SIZE_3 - 3];
-    iv[1] = k[K_SIZE_3 - 2];
-    iv[2] = k[K_SIZE_3 - 1];
+    do {
+      bunny24_prng(seed, SEED_SIZE, iv, k, K_SIZE_3);
+      iv[0] = k[K_SIZE_3 - 3];
+      iv[1] = k[K_SIZE_3 - 2];
+      iv[2] = k[K_SIZE_3 - 1];
 
-    if (sym_id == 1) {
-      k_len = 3;
-    }
-    else {
-      k_len = K_SIZE;
-    }
-    BN_bin2bn(k, k_len, bn_r);
+      if (sym_id == 1) {
+        k_len = 3;
+      }
+      else {
+        k_len = K_SIZE;
+      }
+      BN_bin2bn(k, k_len, bn_r);
+    } while (BN_is_zero(bn_r) || BN_is_one(bn_r));
 
     /* If we're using RSA512 read the correct key (we have the 64bit one) */
     if (public_id == 6) {

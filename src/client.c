@@ -69,14 +69,15 @@ int main(int argc, char ** argv) {
   fclose(fp);
 
   /* CREATE a random number r */
-  fp = fopen("/dev/random", "r");
-  for (i=0; i<SEED_SIZE; i++) {
-    fscanf(fp, "%c", &(seed[i]));
-  }
-  fclose(fp);
-  bunny24_prng(seed, SEED_SIZE, NULL, bin_r, R_SIZE);
-
-  BN_bin2bn(bin_r, R_SIZE, r);
+  do {
+    fp = fopen("/dev/random", "r");
+    for (i=0; i<SEED_SIZE; i++) {
+      fscanf(fp, "%c", &(seed[i]));
+    }
+    fclose(fp);
+    bunny24_prng(seed, SEED_SIZE, NULL, bin_r, R_SIZE);
+    BN_bin2bn(bin_r, R_SIZE, r);
+  } while (BN_is_zero(r) || BN_is_one(r));
 
   /* ENCRYPT r using (s_puk,n) -> c = r^s_puk mod n */
   BN_copy(rc, r);
