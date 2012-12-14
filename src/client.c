@@ -134,6 +134,8 @@ int main(int argc, char ** argv) {
   buff[msg_size] = '\0';
   BN_hex2bn(&rc, (char*)buff);
 
+  /* assert c not in (0, 1) ? no, useless */
+
   /* DECRYPT c using (c_prk,n) -> r' = c^c_prk mod n */
   rsa_decrypt(rc, rsa_d, rsa_n);
 

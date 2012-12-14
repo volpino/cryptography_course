@@ -113,6 +113,8 @@ int main(int argc, char ** argv) {
       goto next;
     }
 
+    /* Assert c not in (0, 1) ? No, useless */
+
     /* DECRYPT c using (s_prk,n) -> r' = c^s_prk mod n */
     buff[msg_size] = '\0';
     BN_hex2bn(&bn_r, (const char *) buff);
