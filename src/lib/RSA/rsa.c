@@ -39,11 +39,18 @@ void rsa_encrypt_secure(BIGNUM* m, const BIGNUM* d,
   BN_bin2bn(r_bin, r_len, r);
   BN_mod(r, r, n, ctx); /* r = r % n */
 
-  BN_mod(tmp, r, n, ctx);
-  while (! BN_is_one(r)) {
+  printf(" r input: ");BN_print_fp(stdout, r);
+  printf(" n: ");BN_print_fp(stdout, n);
+  printf("\n");
+
+  BN_mod(tmp, n, r, ctx);
+  printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);
+  while (BN_is_zero(tmp)) { /*  */
     BN_mod_add(r, r, BN_value_one(), n, ctx);
-    BN_mod(tmp, r, n, ctx);
+    BN_mod(tmp, n, r, ctx);
+    printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);
   }
+  printf("\n");
 
   BN_mod_inverse(r_inv, r, n, ctx);
 
