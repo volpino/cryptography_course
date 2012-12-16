@@ -25,7 +25,7 @@ void rsa_decrypt(BIGNUM* m, const BIGNUM* e, const BIGNUM* n) {
 }
 
 /* encrypts (or decrypts) with private key, not sensitive to
-   timing attacks
+   timing attacks (blind encryption)
 */
 void rsa_encrypt_secure(BIGNUM* m, const BIGNUM* d,
                         const BIGNUM* e, const BIGNUM* n,
@@ -39,25 +39,29 @@ void rsa_encrypt_secure(BIGNUM* m, const BIGNUM* d,
   BN_bin2bn(r_bin, r_len, r);
   BN_mod(r, r, n, ctx); /* r = r % n */
 
+  /*
   printf(" r input: ");BN_print_fp(stdout, r);
   printf(" n: ");BN_print_fp(stdout, n);
   printf("\n");
+  */
 
   BN_mod(tmp, n, r, ctx);
-  printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);
+  /*printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);*/
   while (BN_is_zero(tmp)) { /*  */
     BN_mod_add(r, r, BN_value_one(), n, ctx);
     BN_mod(tmp, n, r, ctx);
-    printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);
+    /*printf("r=");BN_print_fp(stdout, r); printf("; tmp=");BN_print_fp(stdout, tmp);*/
   }
-  printf("\n");
+  /*printf("\n");*/
 
   BN_mod_inverse(r_inv, r, n, ctx);
 
+  /*
   printf(" r = ");BN_print_fp(stdout, r);
   printf(" r_inv = ");BN_print_fp(stdout, r_inv);
   printf(" n = ");BN_print_fp(stdout, n);
   printf("\n");
+  */
 
   BN_mod_exp(r, r, e, n, ctx);  /* r = r^e % n */
   BN_mod_mul(m, m, r, n, ctx);  /* m = m * r % n */
